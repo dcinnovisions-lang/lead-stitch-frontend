@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Session Capture - Lead Stitch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            /* Prevent layout shift */
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 560px;
+            width: 100%;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.5s ease-out;
+            /* Prevent layout shift */
+            min-height: 400px;
+            margin: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        h1 {
+            color: #1a202c;
+            margin-bottom: 12px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 32px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .steps {
+            text-align: left;
+            margin-bottom: 32px;
+            background: #f7fafc;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .step-content {
+            flex: 1;
+            padding-top: 4px;
+        }
+
+        .step-title {
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .step-description {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .status {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 24px 0;
+            font-weight: 500;
+            font-size: 14px;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status.success {
+            background: #f0fff4;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status.error {
+            background: #fff5f5;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status.info {
+            background: #ebf8ff;
+            color: #2c5282;
+            border: 1px solid #90cdf4;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        #loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #718096;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .security-badge svg {
+            width: 16px;
+            height: 16px;
+            color: #48bb78;
+        }
+
+        .security-badge span {
+            color: #718096;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .linkedin-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #0077b5;
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .linkedin-indicator svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 32px 24px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .steps {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+        </div>
+
+        <!-- Title -->
+        <h1>Connect Your LinkedIn Account</h1>
+        <p class="subtitle">We'll securely capture your session to enable LinkedIn profile scraping</p>
+
+        <!-- LinkedIn Indicator -->
+        <div class="linkedin-indicator" id="linkedinIndicator" style="display: none;">
+            <svg viewBox="0 0 24 24">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+            <span>LinkedIn Detected</span>
+        </div>
+
+        <!-- Steps -->
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-title">Automatic Detection</div>
+                    <div class="step-description">We'll automatically detect when you're logged into LinkedIn</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-title">Secure Capture</div>
+                    <div class="step-description">Your session cookies will be securely extracted and encrypted</div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-title">Send to Application</div>
+                    <div class="step-description">Credentials will be sent to Lead Stitch for verification and storage</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="status" class="status"></div>
+
+        <!-- Loading Indicator -->
+        <div id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Processing your session...</div>
+        </div>
+
+        <!-- Action Button -->
+        <button id="captureBtn" onclick="captureAndSend()">
+            <span>Capture Session & Send</span>
+        </button>
+
+        <!-- Security Badge -->
+        <div class="security-badge">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span>Your data is encrypted and secure</span>
+        </div>
+    </div>
+
+    <script>
+        // Check if we're on LinkedIn
+        function checkLinkedIn() {
+            const isOnLinkedIn = window.location.hostname.includes('linkedin.com');
+            const indicator = document.getElementById('linkedinIndicator');
+            
+            console.log('🔵 [Helper] Checking LinkedIn status...');
+            console.log('🔵 [Helper] Is on LinkedIn:', isOnLinkedIn);
+            console.log('🔵 [Helper] Hostname:', window.location.hostname);
+            
+            if (isOnLinkedIn) {
+                indicator.style.display = 'inline-flex';
+                console.log('✅ [Helper] LinkedIn detected, showing indicator');
+            }
+            
+            return isOnLinkedIn;
+        }
+
+        // Extract cookies from current page
+        function extractCookies() {
+            const cookies = [];
+            const cookieString = document.cookie;
+            
+            if (!cookieString) {
+                return cookies;
+            }
+
+            const cookiePairs = cookieString.split(';');
+            cookiePairs.forEach(pair => {
+                const trimmed = pair.trim();
+                const equalIndex = trimmed.indexOf('=');
+                if (equalIndex > 0) {
+                    const name = trimmed.substring(0, equalIndex).trim();
+                    const value = trimmed.substring(equalIndex + 1).trim();
+                    if (name && value) {
+                        cookies.push({
+                            name: name,
+                            value: value,
+                            domain: window.location.hostname,
+                            path: '/',
+                        });
+                    }
+                }
+            });
+
+            return cookies;
+        }
+
+        // Check if user is logged into LinkedIn
+        function isLoggedIn() {
+            const pathname = window.location.pathname;
+            const isLoginPage = pathname.includes('/login') || pathname.includes('/checkpoint');
+            
+            if (isLoginPage) {
+                return false;
+            }
+
+            const cookies = extractCookies();
+            const hasSessionCookies = cookies.some(c => 
+                c.name.toLowerCase().includes('li_at') || 
+                c.name.toLowerCase().includes('jsessionid') ||
+                c.name.toLowerCase().includes('bcookie')
+            );
+
+            return hasSessionCookies;
+        }
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'flex';
+            
+            // Add icon based on type
+            let iconSvg = '';
+            if (type === 'success') {
+                iconSvg = '<svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+            } else if (type === 'error') {
+                iconSvg = '<svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
+            } else {
+                iconSvg = '<svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+            }
+            statusDiv.innerHTML = iconSvg + '<span>' + message + '</span>';
+        }
+
+        // Hide status
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        // Capture and send cookies to parent window
+        async function captureAndSend() {
+            console.log('🔵 [Helper] captureAndSend() called');
+            const btn = document.getElementById('captureBtn');
+            const loading = document.getElementById('loading');
+            
+            btn.disabled = true;
+            loading.style.display = 'flex';
+            hideStatus();
+
+            try {
+                // Check if we're on LinkedIn
+                const isOnLinkedIn = checkLinkedIn();
+                
+                if (!isOnLinkedIn) {
+                    console.warn('⚠️ [Helper] Not on LinkedIn domain');
+                    showStatus('Please navigate to LinkedIn.com first, then open this page again.', 'error');
+                    btn.disabled = false;
+                    loading.style.display = 'none';
+                    return;
+                }
+
+                // Check if user is logged in
+                const loggedIn = isLoggedIn();
+                console.log('🔵 [Helper] Is logged in:', loggedIn);
+                
+                if (!loggedIn) {
+                    console.warn('⚠️ [Helper] User is not logged in');
+                    showStatus('You are not logged into LinkedIn. Please log in first and then return to this page.', 'error');
+                    btn.disabled = false;
+                    loading.style.display = 'none';
+                    return;
+                }
+
+                // Extract cookies
+                const cookies = extractCookies();
+                console.log('🔵 [Helper] Extracted cookies:', cookies.length);
+                
+                if (cookies.length === 0) {
+                    console.warn('⚠️ [Helper] No cookies found');
+                    showStatus('No cookies found. Please ensure you are logged into LinkedIn.', 'error');
+                    btn.disabled = false;
+                    loading.style.display = 'none';
+                    return;
+                }
+
+                // Try to extract email from page if possible
+                let extractedEmail = null;
+                try {
+                    console.log('🔵 [Helper] Attempting to extract email...');
+                    
+                    // Method 1: Try to find email in page text
+                    const pageText = document.body.innerText || '';
+                    const emailRegex = /[\w\.-]+@[\w\.-]+\.\w+/g;
+                    const emailMatches = pageText.match(emailRegex);
+                    if (emailMatches && emailMatches.length > 0) {
+                        extractedEmail = emailMatches.find(email => 
+                            !email.includes('example.com') && 
+                            !email.includes('test.com') &&
+                            !email.includes('linkedin.com') &&
+                            !email.includes('noreply') &&
+                            email.includes('@')
+                        );
+                        if (extractedEmail) {
+                            console.log('✅ [Helper] Extracted email from page text:', extractedEmail);
+                        }
+                    }
+                    
+                    // Method 2: Try to find email in input fields
+                    if (!extractedEmail) {
+                        try {
+                            const emailInputs = document.querySelectorAll('input[type="email"], input[name*="email" i], input[id*="email" i]');
+                            for (const input of emailInputs) {
+                                if (input.value && input.value.includes('@')) {
+                                    extractedEmail = input.value.trim();
+                                    console.log('✅ [Helper] Extracted email from input field:', extractedEmail);
+                                    break;
+                                }
+                            }
+                        } catch (e) {
+                            console.log('🟡 [Helper] Could not check input fields:', e);
+                        }
+                    }
+                    
+                    // Method 3: Try to find email in data attributes or meta tags
+                    if (!extractedEmail) {
+                        try {
+                            const metaEmail = document.querySelector('meta[property="og:email"], meta[name="email"]');
+                            if (metaEmail && metaEmail.content) {
+                                extractedEmail = metaEmail.content.trim();
+                                console.log('✅ [Helper] Extracted email from meta tag:', extractedEmail);
+                            }
+                        } catch (e) {
+                            console.log('🟡 [Helper] Could not check meta tags:', e);
+                        }
+                    }
+                    
+                    if (!extractedEmail) {
+                        console.log('🟡 [Helper] No email found on page');
+                    }
+                } catch (e) {
+                    console.warn('⚠️ [Helper] Could not extract email:', e);
+                }
+
+                showStatus(`Found ${cookies.length} cookies. Sending to application...`, 'info');
+                console.log('🔵 [Helper] Preparing to send message to parent window...');
+
+                // Send to parent window if opened from popup
+                console.log('🔵 [Helper] Checking for window.opener...');
+                console.log('🔵 [Helper] window.opener exists:', !!window.opener);
+                console.log('🔵 [Helper] window.opener closed:', window.opener ? window.opener.closed : 'N/A');
+                
+                const message = {
+                    type: 'LINKEDIN_SESSION_CAPTURED',
+                    source: 'linkedin-helper-page',
+                    data: {
+                        cookies: cookies,
+                        email: extractedEmail || null,
+                        url: window.location.href,
+                        isLoggedIn: true,
+                        timestamp: new Date().toISOString(),
+                    }
+                };
+
+                console.log('✅ [Helper] Prepared message:', message);
+                console.log('🔵 [Helper] window.opener exists:', !!window.opener);
+                console.log('🔵 [Helper] window.opener closed:', window.opener ? window.opener.closed : 'N/A');
+                console.log('🔵 [Helper] window.parent:', window.parent !== window);
+                console.log('🔵 [Helper] window.top:', window.top !== window);
+
+                let messageSent = false;
+                const targetOrigin = '*'; // Use wildcard for cross-origin communication
+
+                // Try to send to opener (popup scenario) - this is the most common case
+                if (window.opener && !window.opener.closed) {
+                    try {
+                        window.opener.postMessage(message, targetOrigin);
+                        console.log('✅ [Helper] Message sent to window.opener with origin:', targetOrigin);
+                        messageSent = true;
+                    } catch (e) {
+                        console.error('❌ [Helper] Error sending to opener:', e);
+                    }
+                } else {
+                    console.log('🟡 [Helper] No valid window.opener found');
+                }
+                
+                // Also try parent window (iframe scenario)
+                if (window.parent && window.parent !== window && !messageSent) {
+                    try {
+                        window.parent.postMessage(message, targetOrigin);
+                        console.log('✅ [Helper] Message sent to window.parent');
+                        messageSent = true;
+                    } catch (e) {
+                        console.error('❌ [Helper] Error sending to parent:', e);
+                    }
+                }
+                
+                // Try top window as fallback
+                if (window.top && window.top !== window && !messageSent) {
+                    try {
+                        window.top.postMessage(message, targetOrigin);
+                        console.log('✅ [Helper] Message sent to window.top');
+                        messageSent = true;
+                    } catch (e) {
+                        console.error('❌ [Helper] Error sending to top:', e);
+                    }
+                }
+                
+                // Also try to send to all possible parent windows
+                if (!messageSent) {
+                    try {
+                        // Try sending to the main window
+                        if (window.parent && window.parent.postMessage) {
+                            window.parent.postMessage(message, targetOrigin);
+                            console.log('✅ [Helper] Attempted to send to window.parent as fallback');
+                        }
+                    } catch (e) {
+                        console.error('❌ [Helper] Fallback send failed:', e);
+                    }
+                }
+
+                if (messageSent) {
+                    showStatus('✅ Session cookies sent successfully! This window will close automatically.', 'success');
+                    
+                    // Update button
+                    btn.innerHTML = '<span>✓ Sent Successfully</span>';
+                    btn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+                    
+                    console.log('✅ [Helper] Success! Auto-closing in 3 seconds...');
+                    // Auto-close after 3 seconds
+                    setTimeout(() => {
+                        console.log('🔵 [Helper] Closing window...');
+                        if (window.opener && !window.opener.closed) {
+                            window.close();
+                        }
+                    }, 3000);
+                } else {
+                    // If no opener, show instructions
+                    console.warn('⚠️ [Helper] Could not send message - no valid parent window');
+                    showStatus('Could not automatically send session data. Please ensure the Lead Stitch application window is still open.', 'error');
+                    console.log('🔵 [Helper] Cookies data:', cookies);
+                    btn.disabled = false;
+                    loading.style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Error capturing session:', error);
+                showStatus('Error: ' + error.message, 'error');
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        // Prevent page jumping
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔵 [Helper] DOM loaded');
+            // Lock scroll position
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                document.body.style.overflow = 'auto';
+            }, 100);
+        });
+
+        // Auto-check LinkedIn on load
+        window.addEventListener('load', () => {
+            console.log('🔵 [Helper] Window loaded');
+            console.log('🔵 [Helper] Current URL:', window.location.href);
+            console.log('🔵 [Helper] Hostname:', window.location.hostname);
+            
+            const isOnLinkedIn = checkLinkedIn();
+            
+            // Auto-capture if opened from our app
+            const urlParams = new URLSearchParams(window.location.search);
+            const autoCapture = urlParams.get('auto') === 'true';
+            console.log('🔵 [Helper] Auto-capture enabled:', autoCapture);
+            
+            // If not on LinkedIn and auto-capture is enabled, redirect to LinkedIn login first
+            if (autoCapture && !isOnLinkedIn) {
+                console.log('🟡 [Helper] Not on LinkedIn, redirecting to login...');
+                showStatus('Redirecting to LinkedIn login...', 'info');
+                setTimeout(() => {
+                    window.location.href = 'https://www.linkedin.com/login';
+                }, 1000);
+                return;
+            }
+            
+            if (autoCapture && isOnLinkedIn) {
+                console.log('🔵 [Helper] On LinkedIn, auto-capturing in 1 second...');
+                setTimeout(() => {
+                    console.log('🔵 [Helper] Starting auto-capture...');
+                    captureAndSend();
+                }, 1000);
+            }
+        });
+
+        // Prevent scroll jumping
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+            if (Math.abs(currentScroll - lastScrollTop) > 50) {
+                window.scrollTo(0, 0);
+            }
+            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+        }, false);
+    </script>
+</body>
+</html>
