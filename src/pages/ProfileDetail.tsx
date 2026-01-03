@@ -282,26 +282,90 @@ function ProfileDetail() {
           </div>
 
           {/* Experience Section */}
-          {profile.experience_details && (
-            <div className="border-t border-gray-200 pt-6 mt-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Experience</h2>
-              <div className="space-y-4">
-                {Array.isArray(profile.experience_details) ? (
-                  profile.experience_details.map((exp, index) => (
-                    <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                      <h3 className="font-medium text-gray-900">{exp.title}</h3>
-                      <p className="text-sm text-gray-600">{exp.company}</p>
+          {profile.experience_details && (() => {
+            // Helper function to format date
+            const formatDate = (dateStr: string | null | undefined) => {
+              if (!dateStr) return null
+              try {
+                const date = new Date(dateStr)
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+              } catch {
+                return dateStr
+              }
+            }
+
+            // Parse experience details
+            let experienceItems: Array<{ title: string; company: string; duration?: string; startDate?: string; endDate?: string; current?: boolean }> = []
+            
+            if (Array.isArray(profile.experience_details)) {
+              // Already an array format
+              experienceItems = profile.experience_details.map((exp: any) => ({
+                title: exp.title || '',
+                company: exp.company || '',
+                duration: exp.duration,
+              }))
+            } else if (typeof profile.experience_details === 'object') {
+              // Apollo.io format - extract employment_history
+              const expData = profile.experience_details as any
+              
+              if (expData.employment_history && Array.isArray(expData.employment_history)) {
+                experienceItems = expData.employment_history.map((emp: any) => {
+                  const startDate = formatDate(emp.start_date)
+                  const endDate = emp.end_date ? formatDate(emp.end_date) : (emp.current ? 'Present' : null)
+                  const duration = startDate && endDate ? `${startDate} - ${endDate}` : startDate || endDate || ''
+                  
+                  return {
+                    title: emp.title || '',
+                    company: emp.organization_name || '',
+                    duration,
+                    startDate: emp.start_date,
+                    endDate: emp.end_date,
+                    current: emp.current,
+                  }
+                })
+              } else {
+                // Fallback: try to extract basic info from the object
+                if (expData.title || expData.organization_name || expData.organization?.name) {
+                  experienceItems = [{
+                    title: expData.title || '',
+                    company: expData.organization_name || expData.organization?.name || '',
+                    duration: '',
+                  }]
+                }
+              }
+            }
+
+            // Only show if we have experience items
+            if (experienceItems.length === 0) return null
+
+            return (
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Experience</h2>
+                <div className="space-y-4">
+                  {experienceItems.map((exp, index) => (
+                    <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      {exp.title && (
+                        <h3 className="font-medium text-gray-900 text-base">{exp.title}</h3>
+                      )}
+                      {exp.company && (
+                        <p className="text-sm text-gray-600 mt-1">{exp.company}</p>
+                      )}
                       {exp.duration && (
-                        <p className="text-xs text-gray-500 mt-1">{exp.duration}</p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          {exp.duration}
+                          {exp.current && (
+                            <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                              Current
+                            </span>
+                          )}
+                        </p>
                       )}
                     </div>
-                  ))
-                ) : (
-                  <p className="text-gray-600">{JSON.stringify(profile.experience_details)}</p>
-                )}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )
+          })()}
 
           {/* Actions */}
           <div className="border-t border-gray-200 pt-6 mt-6 flex space-x-4">

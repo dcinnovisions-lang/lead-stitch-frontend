@@ -756,7 +756,7 @@ function RequirementDetail() {
             <div className="bg-gradient-to-br from-sky-50 to-white border border-sky-100 rounded-2xl p-4">
               <p className="text-sm text-sky-600 font-medium">Profiles Found</p>
               <p className="text-3xl font-bold text-gray-900 mt-2">{scrapedProfiles}</p>
-              <p className="text-xs text-gray-500 mt-1">from LinkedIn module</p>
+              <p className="text-xs text-gray-500 mt-1">from Apollo.io</p>
             </div>
             <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-2xl p-4">
               <p className="text-sm text-indigo-600 font-medium">Emails Found</p>
@@ -898,51 +898,66 @@ function RequirementDetail() {
                 })
               }
               
-              // If we don't have step info but job is running, show default "processing" state
-              const hasStepInfo = currentStep !== 'pending' || stepDetails?.message !== 'Initializing...' || scrapingStatus?.status === 'processing'
+              // Get progress percentage (use progress from status, not step_details since Apollo jobs don't update step_details)
+              const progressPercent = scrapingStatus?.progress || stepDetails?.progress || 0
               
-              // Define steps for visual display with better state detection
-              // Show "pending" as "initializing" if job is actually running
+              // For Apollo.io jobs, step_details are not updated, so we use progress percentage to determine steps
+              // Apollo jobs update progress at: 10%, 20%, 60%, 90%, 100%
+              // Determine step based on progress when step is 'pending' but job is processing
+              const isApolloJob = currentStep === 'pending' && (scrapingStatus?.status === 'processing' || scrapingStatus?.status === 'running')
+              
+              // Map progress to Apollo steps
+              const getApolloStepFromProgress = (progress: number) => {
+                if (progress >= 90) return 'finding_profiles'
+                if (progress >= 20) return 'searching'
+                return 'connecting'
+              }
+              
+              // Define steps for Apollo.io visual display
+              // Apollo.io uses API-based search, no browser or login needed
               // If current_step is 'completed', all steps should be completed
+              // Otherwise, use progress to determine step for Apollo jobs
               const effectiveStep = currentStep === 'completed' 
                 ? 'completed'
-                : (currentStep === 'pending' && (scrapingStatus?.status === 'processing' || scrapingStatus?.status === 'running')) 
-                  ? 'initializing' 
+                : isApolloJob
+                  ? getApolloStepFromProgress(progressPercent)
                   : currentStep
+              
+              // Map old LinkedIn steps to Apollo steps for backward compatibility
+              const mapToApolloStep = (step: string) => {
+                if (step === 'completed') return 'completed'
+                if (step === 'browser_ready' || step === 'initializing') return 'connecting'
+                if (step === 'logging_in' || step === 'login_success') return 'searching'
+                if (step === 'scraping') return 'searching'
+                return step
+              }
+              
+              const apolloEffectiveStep = mapToApolloStep(effectiveStep)
               
               const steps = [
                 { 
-                  id: 'initializing', 
-                  label: 'Initializing Browser', 
-                  icon: '🔧',
-                  active: effectiveStep !== 'completed' && (effectiveStep === 'initializing' || effectiveStep === 'browser_ready' || (effectiveStep === 'pending' && hasStepInfo)),
-                  completed: effectiveStep === 'completed' || ['browser_ready', 'logging_in', 'login_success', 'scraping', 'completed'].includes(effectiveStep),
-                  message: (effectiveStep === 'initializing' || effectiveStep === 'browser_ready') ? (stepDetails.message || 'Initializing browser...') : null
+                  id: 'connecting', 
+                  label: 'Connecting to Apollo.io', 
+                  icon: '🔌',
+                  active: apolloEffectiveStep !== 'completed' && apolloEffectiveStep === 'connecting',
+                  completed: apolloEffectiveStep === 'completed' || ['searching', 'finding_profiles', 'completed'].includes(apolloEffectiveStep),
+                  message: apolloEffectiveStep === 'connecting' ? (stepDetails.message || 'Connecting to Apollo.io API...') : null
                 },
                 { 
-                  id: 'logging_in', 
-                  label: 'Logging in to LinkedIn', 
-                  icon: '🔐',
-                  active: effectiveStep !== 'completed' && effectiveStep === 'logging_in',
-                  completed: effectiveStep === 'completed' || ['login_success', 'scraping', 'completed'].includes(effectiveStep),
-                  failed: loginStatus === 'failed' || loginStatus === 'challenge_required',
-                  message: effectiveStep === 'logging_in' ? (stepDetails.message || `Logging in... (Attempt ${loginAttempt}/${loginMaxAttempts})`) : null
-                },
-                { 
-                  id: 'login_success', 
-                  label: 'Login Successful', 
-                  icon: '✅',
-                  active: effectiveStep !== 'completed' && effectiveStep === 'login_success',
-                  completed: effectiveStep === 'completed' || ['scraping', 'completed'].includes(effectiveStep),
-                  message: effectiveStep === 'login_success' ? (stepDetails.message || 'Login successful! Starting scraping...') : null
-                },
-                { 
-                  id: 'scraping', 
-                  label: 'Scraping Profiles', 
+                  id: 'searching', 
+                  label: 'Searching Apollo.io', 
                   icon: '🔍',
-                  active: effectiveStep !== 'completed' && effectiveStep === 'scraping',
-                  completed: effectiveStep === 'completed',
-                  message: effectiveStep === 'scraping' ? (stepDetails.message || (currentRole ? `Scraping: ${currentRole}` : 'Scraping profiles...')) : null
+                  active: apolloEffectiveStep !== 'completed' && apolloEffectiveStep === 'searching',
+                  completed: apolloEffectiveStep === 'completed' || ['finding_profiles', 'completed'].includes(apolloEffectiveStep),
+                  message: apolloEffectiveStep === 'searching' ? (stepDetails.message || (currentRole ? `Searching for: ${currentRole}` : 'Searching Apollo.io database...')) : null
+                },
+                { 
+                  id: 'finding_profiles', 
+                  label: 'Finding Profiles', 
+                  icon: '👥',
+                  active: apolloEffectiveStep !== 'completed' && apolloEffectiveStep === 'finding_profiles',
+                  completed: apolloEffectiveStep === 'completed',
+                  message: apolloEffectiveStep === 'finding_profiles' ? (stepDetails.message || (currentRole ? `Finding profiles for: ${currentRole}` : 'Finding matching profiles...')) : null
                 }
               ]
               
@@ -955,27 +970,27 @@ function RequirementDetail() {
                 if (stepDetails?.message && stepDetails.message !== 'Initializing...' && stepDetails.message !== 'Job queued') {
                   return stepDetails.message
                 }
-                // Default messages based on effective step
-                if (effectiveStep === 'logging_in' && loginStatus === 'pending') {
-                  return `Logging in to LinkedIn... (Attempt ${loginAttempt}/${loginMaxAttempts})`
+                // Default messages based on effective step (Apollo.io focused)
+                if (apolloEffectiveStep === 'searching' && currentRole) {
+                  return `Searching Apollo.io for: ${currentRole}`
                 }
-                if (effectiveStep === 'login_success') {
-                  return 'Login successful! Starting scraping...'
+                if (apolloEffectiveStep === 'searching') {
+                  return 'Searching Apollo.io database...'
                 }
-                if (effectiveStep === 'scraping' && currentRole) {
-                  return `Scraping role: ${currentRole}`
+                if (apolloEffectiveStep === 'finding_profiles' && currentRole) {
+                  return `Finding profiles for: ${currentRole}`
                 }
-                if (effectiveStep === 'scraping') {
-                  return 'Scraping LinkedIn profiles...'
+                if (apolloEffectiveStep === 'finding_profiles') {
+                  return 'Finding matching profiles...'
                 }
-                if (effectiveStep === 'initializing' || effectiveStep === 'browser_ready') {
-                  return stepDetails?.message || 'Initializing browser...'
+                if (apolloEffectiveStep === 'connecting') {
+                  return stepDetails?.message || 'Connecting to Apollo.io API...'
                 }
                 // If we have a status but no step info, show generic message
                 if (scrapingStatus?.status === 'processing' || scrapingStatus?.status === 'running') {
-                  return 'Processing scraping job...'
+                  return 'Searching Apollo.io for profiles...'
                 }
-                return stepDetails?.message || 'Preparing to start...'
+                return stepDetails?.message || 'Preparing Apollo.io search...'
               }
               
               return (
@@ -1020,9 +1035,6 @@ function RequirementDetail() {
                             step.active ? 'text-white' : step.completed ? 'text-green-200' : step.failed ? 'text-red-200' : 'text-white/60'
                           }`}>
                             {step.label}
-                            {step.active && step.id === 'logging_in' && loginStatus === 'pending' && loginAttempt > 0 && (
-                              <span className="ml-2 text-xs font-normal">(Attempt {loginAttempt}/{loginMaxAttempts})</span>
-                            )}
                             {step.failed && (
                               <span className="ml-2 text-xs text-red-200 font-normal">Failed</span>
                             )}
@@ -1061,46 +1073,17 @@ function RequirementDetail() {
                     <div className="w-full bg-blue-500/30 rounded-full h-3 mt-3 overflow-hidden">
                       <div 
                         className="bg-white h-3 rounded-full transition-all duration-500 ease-out shadow-lg"
-                        style={{ width: `${stepDetails?.progress || scrapingStatus?.progress || 0}%` }}
+                        style={{ width: `${progressPercent}%` }}
                       ></div>
                     </div>
                     <p className="text-xs text-blue-100 mt-2 text-center font-medium">
-                      {stepDetails?.progress || scrapingStatus?.progress || 0}% Complete
+                      {progressPercent}% Complete
                     </p>
                   </div>
                   
-                  {/* Login Status Messages */}
-                  {loginStatus === 'failed' && currentStep !== 'completed' && (
-                    <div className="mt-4 bg-red-500/20 border border-red-400/30 rounded-lg p-3 animate-in slide-in-from-top-2">
-                      <div className="flex items-start gap-2">
-                        <svg className="w-5 h-5 text-red-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div>
-                          <p className="text-sm text-red-100 font-medium">Login Failed</p>
-                          <p className="text-xs text-red-200 mt-1">Please check your LinkedIn credentials and try again.</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {loginStatus === 'challenge_required' && currentStep !== 'completed' && (
-                    <div className="mt-4 bg-orange-500/20 border border-orange-400/30 rounded-lg p-3 animate-in slide-in-from-top-2">
-                      <div className="flex items-start gap-2">
-                        <svg className="w-5 h-5 text-orange-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        <div>
-                          <p className="text-sm text-orange-100 font-medium">Verification Required</p>
-                          <p className="text-xs text-orange-200 mt-1">LinkedIn requires additional verification. Please login manually first.</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
                   <div className="mt-4 pt-4 border-t border-blue-500/30">
                     <p className="text-xs text-blue-100 text-center">
-                      This may take a few minutes. You will receive an email notification when it completes.
+                      Searching Apollo.io database. This may take a few minutes. You will receive an email notification when it completes.
                     </p>
                   </div>
                 </div>
@@ -1111,12 +1094,12 @@ function RequirementDetail() {
             {scrapingStatus?.status === 'failed' && (() => {
               const errorDisplay = scrapingStatus?.error_details 
                 ? formatErrorDisplay({ response: { data: scrapingStatus.error_details } })
-                : { message: scrapingStatus?.error || 'An error occurred while scraping LinkedIn profiles.', retryable: true, icon: '⚠️', color: 'text-red-100' }
+                : { message: scrapingStatus?.error || 'An error occurred while searching Apollo.io for profiles.', retryable: true, icon: '⚠️', color: 'text-red-100' }
               
               const primaryMessage = scrapingStatus?.error_details?.primary_error?.user_message 
                 || scrapingStatus?.error_details?.errors?.[0]?.user_message
                 || scrapingStatus?.error
-                || 'An error occurred while scraping LinkedIn profiles.'
+                || 'An error occurred while searching Apollo.io for profiles.'
               
               const allErrors = scrapingStatus?.error_details?.errors || []
               
@@ -1132,7 +1115,7 @@ function RequirementDetail() {
                   </div>
                   <h2 className="text-2xl font-bold mt-2 flex items-center gap-2">
                     <span>{errorDisplay.icon || '⚠️'}</span>
-                    LinkedIn Scraping Failed
+                    Apollo.io Search Failed
                   </h2>
                   
                   <div className="mt-4 space-y-3">
@@ -1163,8 +1146,8 @@ function RequirementDetail() {
                   <div className="mt-4 pt-4 border-t border-red-500/30">
                     <p className="text-xs text-red-100 text-center">
                       {errorDisplay.retryable !== false 
-                        ? 'You can retry the scraping by clicking the button below.'
-                        : 'This error may require manual intervention. Please check your LinkedIn credentials or contact support.'}
+                        ? 'You can retry the search by clicking the button below.'
+                        : 'This error may require manual intervention. Please check your Apollo.io API configuration or contact support.'}
                     </p>
                   </div>
                 </div>
@@ -1224,11 +1207,11 @@ function RequirementDetail() {
               </div>
               {scrapedProfiles === 0 ? (
                 <div className="text-center py-10">
-                  <p className="text-gray-600">No LinkedIn profiles yet.</p>
-                  <p className="text-sm text-gray-500 mt-1">Launch a scrape to populate this area.</p>
+                  <p className="text-gray-600">No profiles yet.</p>
+                  <p className="text-sm text-gray-500 mt-1">Launch a search to populate this area.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="max-h-96 overflow-y-auto space-y-4 pr-2">
                   {profiles.map((profile) => (
                     <div key={profile.id} className="border border-gray-100 rounded-2xl p-4 hover:border-blue-200 transition cursor-pointer" onClick={() => navigate(`/profile/${profile.id}`)}>
                       <div className="flex items-center justify-between">
