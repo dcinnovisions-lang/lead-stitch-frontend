@@ -296,8 +296,8 @@ function CampaignCreate() {
         ...prev,
         template_id: templateId,
         subject: prev.subject || template.subject,
-        body_html: prev.body_html || template.body,
-        body_text: prev.body_text || template.body,
+        body_html: prev.body_html || template.body_html || template.body || '',
+        body_text: prev.body_text || template.body_text || template.body || '',
       }))
     }
   }
