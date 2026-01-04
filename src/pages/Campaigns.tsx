@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Layout from '../components/Layout'
+import Modal from '../components/Modal'
+import type { ModalConfig } from '../utils/modal'
 import { getCampaigns, deleteCampaign, clearError } from '../store/slices/campaignsSlice'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { RootState } from '../types/redux/rootState.types'
@@ -32,6 +34,7 @@ function Campaigns() {
   const [toast, setToast] = useState<ToastState | null>(null)
   const [highlightId, setHighlightId] = useState<number | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [modal, setModal] = useState<ModalConfig | null>(null)
 
   useEffect(() => {
     console.log('🔄 Campaigns component - filter changed or mounted:', filter)
@@ -131,22 +134,38 @@ function Campaigns() {
 
   const handleDeleteCampaign = async (campaign) => {
     if (deletingId) return
-    if (!window.confirm(`Delete "${campaign.name}"? This action cannot be undone.`)) return
-
-    try {
-      setDeletingId(campaign.id)
-      const result = await dispatch(deleteCampaign(campaign.id))
-      if (deleteCampaign.fulfilled.match(result)) {
-        setToast({ message: 'Campaign deleted successfully.', type: 'success' })
-      } else {
-        const errorMessage = result.payload || 'Failed to delete campaign'
-        alert(errorMessage)
-      }
-    } catch (error) {
-      alert(error.message || 'Failed to delete campaign')
-    } finally {
-      setDeletingId(null)
-    }
+    setModal({
+      title: 'Confirm Delete',
+      message: `Delete "${campaign.name}"? This action cannot be undone.`,
+      type: 'warning',
+      showCancel: true,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        try {
+          setDeletingId(campaign.id)
+          const result = await dispatch(deleteCampaign(campaign.id))
+          if (deleteCampaign.fulfilled.match(result)) {
+            setToast({ message: 'Campaign deleted successfully.', type: 'success' })
+          } else {
+            const errorMessage = result.payload || 'Failed to delete campaign'
+            setModal({
+              title: 'Error',
+              message: errorMessage,
+              type: 'error',
+            })
+          }
+        } catch (error: any) {
+          setModal({
+            title: 'Error',
+            message: error.message || 'Failed to delete campaign',
+            type: 'error',
+          })
+        } finally {
+          setDeletingId(null)
+        }
+      },
+    })
   }
 
 
@@ -427,6 +446,32 @@ function Campaigns() {
           </div>
         )}
       </div>
+
+      {/* Modal */}
+      {modal && (
+        <Modal
+          isOpen={true}
+          onClose={() => setModal(null)}
+          title={modal.title}
+          message={modal.message}
+          type={modal.type || 'info'}
+          onConfirm={() => {
+            if (modal.onConfirm) {
+              modal.onConfirm()
+            }
+            setModal(null)
+          }}
+          onCancel={() => {
+            if (modal.onCancel) {
+              modal.onCancel()
+            }
+            setModal(null)
+          }}
+          confirmText={modal.confirmText || 'OK'}
+          cancelText={modal.cancelText || 'Cancel'}
+          showCancel={modal.showCancel || false}
+        />
+      )}
     </Layout>
   )
 }

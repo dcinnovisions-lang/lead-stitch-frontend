@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
+import Modal from '../components/Modal'
+import type { ModalConfig } from '../utils/modal'
 import { getCampaignById, getCampaignRecipients, sendCampaign, deleteCampaign, clearCurrentCampaign, clearError } from '../store/slices/campaignsSlice'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { RootState } from '../types/redux/rootState.types'
@@ -34,6 +36,7 @@ function CampaignDetail() {
   const [deleting, setDeleting] = useState<boolean>(false)
   const [liveProgress, setLiveProgress] = useState<CampaignProgress | null>(null)
   const [liveStats, setLiveStats] = useState<CampaignStats | null>(null)
+  const [modal, setModal] = useState<ModalConfig | null>(null)
 
   // Fetch campaign data on mount
   useEffect(() => {
@@ -118,9 +121,20 @@ function CampaignDetail() {
   }, [error, dispatch])
 
   const handleSendCampaign = async () => {
-    if (!window.confirm('Are you sure you want to send this campaign? This will send emails to all recipients.')) {
-      return
-    }
+    setModal({
+      title: 'Confirm Send Campaign',
+      message: 'Are you sure you want to send this campaign? This will send emails to all recipients.',
+      type: 'warning',
+      showCancel: true,
+      confirmText: 'Send',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        await performSendCampaign()
+      },
+    })
+  }
+
+  const performSendCampaign = async () => {
 
     try {
       console.log('📧 ========== SEND CAMPAIGN CLICKED ==========')
@@ -146,12 +160,20 @@ function CampaignDetail() {
         // Campaign is now being sent, real-time updates will handle the rest
       } else {
         const errorMessage = result.payload || 'Unknown error occurred'
-        alert(`Failed to send campaign: ${errorMessage}\n\nCheck the browser console and backend logs for more details.`)
+        setModal({
+          title: 'Error',
+          message: `Failed to send campaign: ${errorMessage}\n\nCheck the browser console and backend logs for more details.`,
+          type: 'error',
+        })
       }
     } catch (error: any) {
       console.error('❌ ========== SEND CAMPAIGN ERROR ==========')
       console.error('❌ Error:', error)
-      alert(`Failed to send campaign: ${error.message || 'Unknown error occurred'}`)
+      setModal({
+        title: 'Error',
+        message: `Failed to send campaign: ${error.message || 'Unknown error occurred'}`,
+        type: 'error',
+      })
     }
   }
 
@@ -408,27 +430,50 @@ function CampaignDetail() {
                 Edit Campaign
               </button>
               <button
-                onClick={async () => {
+                onClick={() => {
                   if (deleting) return
-                  if (!window.confirm('Delete this campaign? This action cannot be undone.')) return
-                  try {
-                    setDeleting(true)
-                    if (!id) return
-                    // Campaign IDs are UUIDs (strings), pass directly
-                    const result = await dispatch(deleteCampaign(id))
-                    if (deleteCampaign.fulfilled.match(result)) {
-                      alert('Campaign deleted.')
-                      navigate('/campaigns', {
-                        state: { toast: 'Campaign deleted.', highlightId: null },
-                      })
-                    } else {
-                      alert(result.payload || 'Failed to delete campaign.')
-                    }
-                  } catch (error) {
-                    alert(error.message || 'Failed to delete campaign.')
-                  } finally {
-                    setDeleting(false)
-                  }
+                  setModal({
+                    title: 'Confirm Delete',
+                    message: 'Delete this campaign? This action cannot be undone.',
+                    type: 'warning',
+                    showCancel: true,
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel',
+                    onConfirm: async () => {
+                      try {
+                        setDeleting(true)
+                        if (!id) return
+                        // Campaign IDs are UUIDs (strings), pass directly
+                        const result = await dispatch(deleteCampaign(id))
+                        if (deleteCampaign.fulfilled.match(result)) {
+                          setModal({
+                            title: 'Success',
+                            message: 'Campaign deleted.',
+                            type: 'success',
+                            onConfirm: () => {
+                              navigate('/campaigns', {
+                                state: { toast: 'Campaign deleted.', highlightId: null },
+                              })
+                            },
+                          })
+                        } else {
+                          setModal({
+                            title: 'Error',
+                            message: result.payload || 'Failed to delete campaign.',
+                            type: 'error',
+                          })
+                        }
+                      } catch (error: any) {
+                        setModal({
+                          title: 'Error',
+                          message: error.message || 'Failed to delete campaign.',
+                          type: 'error',
+                        })
+                      } finally {
+                        setDeleting(false)
+                      }
+                    },
+                  })
                 }}
                 className="px-4 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-colors"
                 disabled={deleting}
@@ -616,6 +661,32 @@ function CampaignDetail() {
           </div>
         </div>
       </div>
+
+      {/* Modal */}
+      {modal && (
+        <Modal
+          isOpen={true}
+          onClose={() => setModal(null)}
+          title={modal.title}
+          message={modal.message}
+          type={modal.type || 'info'}
+          onConfirm={() => {
+            if (modal.onConfirm) {
+              modal.onConfirm()
+            }
+            setModal(null)
+          }}
+          onCancel={() => {
+            if (modal.onCancel) {
+              modal.onCancel()
+            }
+            setModal(null)
+          }}
+          confirmText={modal.confirmText || 'OK'}
+          cancelText={modal.cancelText || 'Cancel'}
+          showCancel={modal.showCancel || false}
+        />
+      )}
     </Layout>
   )
 }
