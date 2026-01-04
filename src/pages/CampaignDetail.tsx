@@ -74,7 +74,12 @@ function CampaignDetail() {
 
     // Listen to real-time campaign progress
     useEffect(() => {
-        if (!id) return
+        if (!id || !isConnected) {
+            console.log('⚠️ Skipping socket listener setup - id or connection missing', { id, isConnected })
+            return
+        }
+
+        console.log('🔌 Setting up socket event listeners for campaign:', id)
 
         const unsubscribeProgress = onCampaignProgress((data: CampaignProgress) => {
             console.log('📊 Campaign progress update:', data)
@@ -116,12 +121,13 @@ function CampaignDetail() {
         })
 
         return () => {
+            console.log('🧹 Cleaning up socket event listeners')
             unsubscribeProgress?.()
             unsubscribeStats?.()
             unsubscribeRecipient?.()
             unsubscribeStatus?.()
         }
-    }, [id, onCampaignProgress, onCampaignStats, onRecipientUpdate, onCampaignStatusChange, dispatch, currentCampaign])
+    }, [id, isConnected, onCampaignProgress, onCampaignStats, onRecipientUpdate, onCampaignStatusChange, dispatch, currentCampaign])
 
     // Clear error when component unmounts or error changes
     useEffect(() => {

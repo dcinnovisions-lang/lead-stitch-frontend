@@ -149,13 +149,15 @@ export function useSocket() {
     const onCampaignProgress = useCallback((callback: (data: CampaignProgress) => void) => {
         if (socketRef.current) {
             console.log('📊 Setting up campaign-progress listener');
-            socketRef.current.on('campaign-progress', (data) => {
+            // Store the wrapper function so we can remove it later
+            const listener = (data: CampaignProgress) => {
                 console.log('📊 Received campaign-progress event:', data);
                 callback(data);
-            });
+            };
+            socketRef.current.on('campaign-progress', listener);
             return () => {
                 console.log('📊 Removing campaign-progress listener');
-                socketRef.current?.off('campaign-progress', callback);
+                socketRef.current?.off('campaign-progress', listener);
             };
         } else {
             console.warn('⚠️ Cannot set up campaign-progress listener: socket not connected');
@@ -166,13 +168,15 @@ export function useSocket() {
     const onCampaignStats = useCallback((callback: (data: CampaignStats) => void) => {
         if (socketRef.current) {
             console.log('📊 Setting up campaign-stats listener');
-            socketRef.current.on('campaign-stats', (data) => {
+            // Store the wrapper function so we can remove it later
+            const listener = (data: CampaignStats) => {
                 console.log('📊 Received campaign-stats event:', data);
                 callback(data);
-            });
+            };
+            socketRef.current.on('campaign-stats', listener);
             return () => {
                 console.log('📊 Removing campaign-stats listener');
-                socketRef.current?.off('campaign-stats', callback);
+                socketRef.current?.off('campaign-stats', listener);
             };
         } else {
             console.warn('⚠️ Cannot set up campaign-stats listener: socket not connected');
@@ -183,13 +187,15 @@ export function useSocket() {
     const onRecipientUpdate = useCallback((callback: (data: RecipientUpdate) => void) => {
         if (socketRef.current) {
             console.log('👤 Setting up recipient-update listener');
-            socketRef.current.on('recipient-update', (data) => {
+            // Store the wrapper function so we can remove it later
+            const listener = (data: RecipientUpdate) => {
                 console.log('👤 Received recipient-update event:', data);
                 callback(data);
-            });
+            };
+            socketRef.current.on('recipient-update', listener);
             return () => {
                 console.log('👤 Removing recipient-update listener');
-                socketRef.current?.off('recipient-update', callback);
+                socketRef.current?.off('recipient-update', listener);
             };
         } else {
             console.warn('⚠️ Cannot set up recipient-update listener: socket not connected');
@@ -200,13 +206,15 @@ export function useSocket() {
     const onCampaignStatusChange = useCallback((callback: (data: CampaignStatusChange) => void) => {
         if (socketRef.current) {
             console.log('🔄 Setting up campaign-status-change listener');
-            socketRef.current.on('campaign-status-change', (data) => {
+            // Store the wrapper function so we can remove it later
+            const listener = (data: CampaignStatusChange) => {
                 console.log('🔄 Received campaign-status-change event:', data);
                 callback(data);
-            });
+            };
+            socketRef.current.on('campaign-status-change', listener);
             return () => {
                 console.log('🔄 Removing campaign-status-change listener');
-                socketRef.current?.off('campaign-status-change', callback);
+                socketRef.current?.off('campaign-status-change', listener);
             };
         } else {
             console.warn('⚠️ Cannot set up campaign-status-change listener: socket not connected');
