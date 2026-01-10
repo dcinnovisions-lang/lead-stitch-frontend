@@ -9,6 +9,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
 import VerifyOTP from './pages/VerifyOTP'
+import PendingApproval from './pages/PendingApproval'
+import AccountRejected from './pages/AccountRejected'
 import Dashboard from './pages/Dashboard'
 import BusinessRequirement from './pages/BusinessRequirement'
 import Profiles from './pages/Profiles'
@@ -38,6 +40,7 @@ import AdminSettings from './pages/admin/AdminSettings'
 import AdminTickets from './pages/admin/AdminTickets'
 import AdminTicketDetail from './pages/admin/AdminTicketDetail'
 import UsageTracking from './pages/admin/UsageTracking'
+import UserApprovalManagement from './pages/admin/UserApprovalManagement'
 import AdminRoute from './components/AdminRoute'
 import Layout from './components/Layout'
 import './App.css'
@@ -108,6 +111,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
+        <Route path="/pending-approval" element={<PendingApproval />} />
+        <Route path="/account-rejected" element={<AccountRejected />} />
         <Route
           path="/dashboard"
           element={
@@ -393,6 +398,16 @@ function App() {
           }
         />
         <Route
+          path="/admin/user-approvals"
+          element={
+            <PrivateRoute>
+              <AdminRoute>
+                <UserApprovalManagement />
+              </AdminRoute>
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/admin/usagetracking"
           element={
             <PrivateRoute>
@@ -408,4 +423,3 @@ function App() {
 }
 
 export default App
-

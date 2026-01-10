@@ -8,11 +8,23 @@ interface BusinessRequirementState {
   decisionMakers: DecisionMaker[]
   loading: boolean
   identifying: boolean
+  identifyingIndustry: boolean
+  industryError: string | null
+  industrySuggestions: string[]
   error: string | null
 }
 
 interface IdentifyDecisionMakersResponse {
   decisionMakers: DecisionMaker[]
+}
+
+interface IdentifyIndustryResponse {
+  industry?: string
+  primaryIndustry?: string
+  industries?: string[]
+  apiSource?: string
+  model?: string
+  message?: string
 }
 
 // Async thunks
@@ -64,6 +76,30 @@ export const identifyDecisionMakers = createAsyncThunk<
   }
 )
 
+export const identifyIndustry = createAsyncThunk<
+  IdentifyIndustryResponse,
+  string,
+  { rejectValue: string }
+>(
+  'businessRequirement/identifyIndustry',
+  async (requirementText, { rejectWithValue }) => {
+    try {
+      const trimmed = requirementText?.trim() || ''
+      if (!trimmed || trimmed.length < 10) {
+        return rejectWithValue('Requirement text must be at least 10 characters long')
+      }
+
+      const response = await api.post<IdentifyIndustryResponse>('/business-requirements/identify-industry', {
+        requirementText: trimmed
+      })
+      return response.data
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to identify industry'
+      return rejectWithValue(errorMessage)
+    }
+  }
+)
+
 export const getBusinessRequirements = createAsyncThunk<
   BusinessRequirement[],
   void,
@@ -86,6 +122,9 @@ const initialState: BusinessRequirementState = {
   decisionMakers: [],
   loading: false,
   identifying: false,
+  identifyingIndustry: false,
+  industryError: null,
+  industrySuggestions: [],
   error: null,
 }
 
@@ -99,6 +138,7 @@ const businessRequirementSlice = createSlice({
     clearCurrentRequirement: (state) => {
       state.currentRequirement = null
       state.decisionMakers = []
+      state.industrySuggestions = []
     },
     clearError: (state) => {
       state.error = null
@@ -139,6 +179,21 @@ const businessRequirementSlice = createSlice({
       // Get All Requirements
       .addCase(getBusinessRequirements.fulfilled, (state, action) => {
         state.requirements = action.payload
+      })
+      // Identify Industry
+      .addCase(identifyIndustry.pending, (state) => {
+        state.identifyingIndustry = true
+        state.industryError = null
+      })
+      .addCase(identifyIndustry.fulfilled, (state, action) => {
+        state.identifyingIndustry = false
+        state.industryError = null
+        const suggestions = action.payload.industries || (action.payload.industry ? [action.payload.industry] : [])
+        state.industrySuggestions = suggestions.filter(Boolean)
+      })
+      .addCase(identifyIndustry.rejected, (state, action) => {
+        state.identifyingIndustry = false
+        state.industryError = action.payload || 'Failed to identify industry'
       })
   },
 })

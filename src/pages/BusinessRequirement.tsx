@@ -26,7 +26,7 @@ function BusinessRequirement() {
   
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const { loading, identifying, identifyingIndustry, industryError, currentRequirement, decisionMakers } = useAppSelector(
+  const { loading, identifying, identifyingIndustry, industryError, industrySuggestions, currentRequirement, decisionMakers } = useAppSelector(
     (state: RootState) => state.businessRequirement
   )
   const { scrapingJob, scrapingStatus } = useAppSelector((state: RootState) => state.profiles)
@@ -35,6 +35,9 @@ function BusinessRequirement() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const autoDetectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastAutoDetectedTextRef = useRef<string>('')
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('')
+  const [useCustomIndustry, setUseCustomIndustry] = useState<boolean>(false)
+  const autoDetectEnabled = false // manual trigger preferred
 
   // Clear state when component mounts if creating a new requirement
   useEffect(() => {
@@ -53,6 +56,7 @@ function BusinessRequirement() {
       lastAutoDetectedTextRef.current = '' // Reset auto-detection tracking
       setHasScrolled(false)
       setIsSubmitting(false)
+      setUseCustomIndustry(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Only run on mount
@@ -95,6 +99,10 @@ function BusinessRequirement() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newValue = e.target.value
     setFormData({ ...formData, [e.target.name]: newValue })
+    if (e.target.name === 'industry') {
+      setSelectedIndustry('')
+      setUseCustomIndustry(true)
+    }
     console.log('🔵 Field changed:', e.target.name, 'Value length:', newValue?.trim().length || 0)
   }
   
@@ -252,6 +260,14 @@ function BusinessRequirement() {
     }
   }
 
+  const handleIdentifyIndustry = async () => {
+    const trimmedText = formData.requirementText?.trim() || ''
+    if (trimmedText.length < 10) {
+      return
+    }
+    await dispatch(identifyIndustry(trimmedText))
+  }
+
 
 
   // Clear form and decision makers ONLY when creating a NEW requirement
@@ -276,6 +292,7 @@ function BusinessRequirement() {
       dispatch(clearCurrentRequirement())
       setHasScrolled(false)
       setIsSubmitting(false)
+      setUseCustomIndustry(false)
     }
   }, [requirementIdParam, currentRequirement, dispatch])
 
@@ -292,6 +309,9 @@ function BusinessRequirement() {
 
   // Auto-detect industry when requirement text has enough content
   useEffect(() => {
+    if (!autoDetectEnabled) {
+      return undefined
+    }
     // Clear any existing timeout
     if (autoDetectTimeoutRef.current) {
       clearTimeout(autoDetectTimeoutRef.current)
@@ -338,6 +358,7 @@ function BusinessRequirement() {
               const identifiedIndustry = result.payload.industry
               if (identifiedIndustry) {
                 setFormData(prev => ({ ...prev, industry: identifiedIndustry }))
+                setUseCustomIndustry(false)
                 console.log('✅ Auto-detected industry:', identifiedIndustry)
               }
             }
@@ -358,6 +379,26 @@ function BusinessRequirement() {
       }
     }
   }, [formData.requirementText, formData.industry, identifyingIndustry, currentRequirement, dispatch])
+
+  // Apply identified industries when available
+  useEffect(() => {
+    if (industrySuggestions.length > 0) {
+      const trimmedCurrent = formData.industry?.trim() || ''
+      const matchesSuggestion = trimmedCurrent && industrySuggestions.some(s => s.toLowerCase() === trimmedCurrent.toLowerCase())
+
+      if (!trimmedCurrent && !useCustomIndustry) {
+        const nextIndustry = industrySuggestions[0]
+        setSelectedIndustry(nextIndustry)
+        setFormData(prev => ({ ...prev, industry: nextIndustry }))
+      } else if (matchesSuggestion) {
+        setSelectedIndustry(trimmedCurrent)
+      } else {
+        setSelectedIndustry('')
+      }
+    } else if (!formData.industry) {
+      setSelectedIndustry('')
+    }
+  }, [industrySuggestions, formData.industry, useCustomIndustry])
 
   // Load existing requirement if requirementId is provided
   useEffect(() => {
@@ -481,13 +522,10 @@ function BusinessRequirement() {
                       </svg>
                       <div className="flex-1">
                         <p className="text-xs text-blue-900 font-medium mb-1">
-                          Auto-Detection Enabled
+                          Get industry suggestions (optional)
                         </p>
                         <p className="text-xs text-blue-700">
-                          Enter your business description above and we'll automatically find the best matching industry for you. 
-                          {formData.requirementText && formData.requirementText.trim().length < 20 && (
-                            <span className="font-medium"> Keep typing to enable detection (minimum 20 characters).</span>
-                          )}
+                          Enter your business description above, then click “Suggest industries” to pull the top matches. You can still type your own industry anytime.
                         </p>
                       </div>
                     </div>
@@ -501,12 +539,63 @@ function BusinessRequirement() {
                   value={formData.industry}
                   onChange={handleChange}
                   className="input-field"
-                  placeholder={identifyingIndustry ? "Finding best match..." : formData.industry ? "Edit if needed" : "Will be auto-detected from your description"}
+                  placeholder={identifyingIndustry ? "Finding best match..." : formData.industry ? "Edit if needed" : "Click suggest to auto-fill or type your own"}
                   disabled={identifyingIndustry}
                 />
-                
+
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    type="button"
+                    className="btn-secondary text-xs"
+                    disabled={identifyingIndustry || (formData.requirementText?.trim().length || 0) < 10}
+                    onClick={handleIdentifyIndustry}
+                  >
+                    {identifyingIndustry ? 'Finding match...' : 'Suggest industries'}
+                  </button>
+                  <span className="text-[11px] text-gray-500">Uses your business requirement text</span>
+                </div>
+
                 {industryError && (
-                  <p className="mt-1 text-xs text-red-500">{industryError}</p>
+                  <p className="mt-1 text-xs text-amber-600">{industryError} — you can still type your own industry or retry.</p>
+                )}
+
+                {industrySuggestions.length > 0 && (
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-semibold text-gray-700">Suggested industries (click to apply)</p>
+                      <span className="text-[11px] text-gray-500">Best match first</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {industrySuggestions.map((suggestion) => {
+                        const isSelected = selectedIndustry.toLowerCase() === suggestion.toLowerCase()
+                        return (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => {
+                              setSelectedIndustry(suggestion)
+                              setUseCustomIndustry(false)
+                              setFormData(prev => ({ ...prev, industry: suggestion }))
+                            }}
+                            className={`px-3 py-1.5 rounded-full border text-xs transition ${isSelected ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-700 border-gray-200 hover:border-primary-300 hover:text-primary-700'}`}
+                          >
+                            {suggestion}
+                          </button>
+                        )
+                      })}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedIndustry('')
+                          setUseCustomIndustry(true)
+                          setFormData(prev => ({ ...prev, industry: '' }))
+                        }}
+                        className={`px-3 py-1.5 rounded-full border text-xs transition ${selectedIndustry === '' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}
+                      >
+                        Use custom entry
+                      </button>
+                    </div>
+                  </div>
                 )}
                 
                 <div className="mt-2">
@@ -524,9 +613,7 @@ function BusinessRequirement() {
                     </div>
                   ) : (
                     <p className="text-xs text-gray-500">
-                      {formData.requirementText && formData.requirementText.trim().length >= 20 
-                        ? "✓ Detection in progress... We'll find the best matching industry automatically."
-                        : "Tip: Enter at least 20 characters in your business requirement description above to enable auto-detection."}
+                      Tip: enter at least 10 characters in your business requirement, then click “Suggest industries” to see top matches.
                     </p>
                   )}
                 </div>

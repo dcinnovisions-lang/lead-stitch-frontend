@@ -107,6 +107,7 @@ const initialState = {
   identifying: false,
   identifyingIndustry: false,
   industryError: null,
+  industrySuggestions: [],
   error: null,
 }
 
@@ -120,6 +121,7 @@ const businessRequirementSlice = createSlice({
     clearCurrentRequirement: (state) => {
       state.currentRequirement = null
       state.decisionMakers = []
+      state.industrySuggestions = []
     },
     clearError: (state) => {
       state.error = null
@@ -169,6 +171,8 @@ const businessRequirementSlice = createSlice({
       .addCase(identifyIndustry.fulfilled, (state, action) => {
         state.identifyingIndustry = false
         state.industryError = null
+        const suggestions = action.payload?.industries || (action.payload?.industry ? [action.payload.industry] : [])
+        state.industrySuggestions = suggestions.filter(Boolean)
       })
       .addCase(identifyIndustry.rejected, (state, action) => {
         state.identifyingIndustry = false
