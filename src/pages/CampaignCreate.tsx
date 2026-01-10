@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Layout from '../components/Layout'
+import Modal from '../components/Modal'
+import { showModal } from '../utils/modal'
+import type { ModalConfig } from '../utils/modal'
 import api from '../config/api'
 import type { EmailTemplate } from '../types/api/template.types'
 import type { SMTPCredential } from '../types/api/integration.types'
@@ -72,6 +75,7 @@ function CampaignCreate() {
   const [selectedLeads, setSelectedLeads] = useState<number[]>([])
   const [leadEmails, setLeadEmails] = useState<Record<number, string>>({})
   const [showLeadSelector, setShowLeadSelector] = useState<boolean>(false)
+  const [modal, setModal] = useState<ModalConfig | null>(null)
   
   // Validation state
   const [touched, setTouched] = useState<TouchedFields>({
@@ -296,8 +300,8 @@ function CampaignCreate() {
         ...prev,
         template_id: templateId,
         subject: prev.subject || template.subject,
-        body_html: prev.body_html || template.body,
-        body_text: prev.body_text || template.body,
+        body_html: prev.body_html || template.body_html || template.body || '',
+        body_text: prev.body_text || template.body_text || template.body || '',
       }))
     }
   }
@@ -441,7 +445,11 @@ function CampaignCreate() {
       return
     }
     if (selectedLeads.length === 0) {
-      alert('Please select at least one recipient')
+      setModal({
+        title: 'Validation Error',
+        message: 'Please select at least one recipient',
+        type: 'warning',
+      })
       return
     }
 
@@ -457,7 +465,11 @@ function CampaignCreate() {
     })
 
     if (missingEmails.length > 0) {
-      alert(`Please add email addresses for: ${missingEmails.join(', ')}`)
+      setModal({
+        title: 'Missing Email Addresses',
+        message: `Please add email addresses for: ${missingEmails.join(', ')}`,
+        type: 'warning',
+      })
       return
     }
 
@@ -512,11 +524,17 @@ function CampaignCreate() {
         const successMessage = isEdit
           ? 'Campaign updated. Send it from the Campaigns dashboard when you are ready.'
           : 'Campaign saved as draft. Send it from the Campaigns dashboard when you are ready.'
-        alert(successMessage)
-        navigate('/campaigns', {
-          state: {
-            toast: successMessage,
-            highlightId: response.data.id,
+        setModal({
+          title: 'Success',
+          message: successMessage,
+          type: 'success',
+          onConfirm: () => {
+            navigate('/campaigns', {
+              state: {
+                toast: successMessage,
+                highlightId: response.data.id,
+              },
+            })
           },
         })
       } else {
@@ -526,7 +544,11 @@ function CampaignCreate() {
       console.error('Error saving campaign:', error)
       const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to save campaign'
       const errorDetail = error.response?.data?.detail || ''
-      alert(`Failed to save campaign: ${errorMessage}${errorDetail ? `\n\nDetails: ${errorDetail}` : ''}`)
+      setModal({
+        title: 'Error',
+        message: `Failed to save campaign: ${errorMessage}${errorDetail ? `\n\nDetails: ${errorDetail}` : ''}`,
+        type: 'error',
+      })
     } finally {
       setSaving(false)
     }
@@ -1096,6 +1118,32 @@ function CampaignCreate() {
           </div>
         </form>
       </div>
+
+      {/* Modal */}
+      {modal && (
+        <Modal
+          isOpen={true}
+          onClose={() => setModal(null)}
+          title={modal.title}
+          message={modal.message}
+          type={modal.type || 'info'}
+          onConfirm={() => {
+            if (modal.onConfirm) {
+              modal.onConfirm()
+            }
+            setModal(null)
+          }}
+          onCancel={() => {
+            if (modal.onCancel) {
+              modal.onCancel()
+            }
+            setModal(null)
+          }}
+          confirmText={modal.confirmText || 'OK'}
+          cancelText={modal.cancelText || 'Cancel'}
+          showCancel={modal.showCancel || false}
+        />
+      )}
     </Layout>
   )
 }

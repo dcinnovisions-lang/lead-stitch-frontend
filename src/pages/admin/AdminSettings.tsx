@@ -28,6 +28,8 @@ function AdminSettings() {
   const [saving, setSaving] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+  const [successPopup, setSuccessPopup] = useState<{ message: string } | null>(null)
+  const [errorPopup, setErrorPopup] = useState<{ message: string } | null>(null)
 
   // Fetch settings on mount
   useEffect(() => {
@@ -74,11 +76,11 @@ function AdminSettings() {
         setLastUpdated(response.data.updated_at)
       }
 
-      alert('Settings saved successfully!')
+      setSuccessPopup({ message: 'Settings saved successfully!' })
     } catch (error: any) {
       console.error('Error saving settings:', error)
       const errorMessage = error.response?.data?.message || 'Failed to save settings'
-      alert(errorMessage)
+      setErrorPopup({ message: errorMessage })
     } finally {
       setSaving(false)
     }
@@ -175,6 +177,56 @@ function AdminSettings() {
             </button>
           </div>
         </div>
+
+        {/* Success Popup */}
+        {successPopup && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+              <div className="p-6 text-center">
+                <div className="mb-4">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+                <p className="text-gray-600 mb-6">{successPopup.message}</p>
+                <button
+                  onClick={() => setSuccessPopup(null)}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error Popup */}
+        {errorPopup && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+              <div className="p-6 text-center">
+                <div className="mb-4">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Error</h3>
+                <p className="text-gray-600 mb-6">{errorPopup.message}</p>
+                <button
+                  onClick={() => setErrorPopup(null)}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   )
