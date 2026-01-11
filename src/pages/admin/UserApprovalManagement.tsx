@@ -84,10 +84,23 @@ const UserApprovalManagement: React.FC = () => {
             const response = await axios.get('/api/user-approval/stats', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-
-            setStats(response.data.data);
+            const data = response.data?.data;
+            if (
+                typeof data !== 'object' ||
+                data === null ||
+                typeof data.pending !== 'number' ||
+                typeof data.approved !== 'number' ||
+                typeof data.rejected !== 'number' ||
+                typeof data.total !== 'number'
+            ) {
+                console.error('❌ Malformed stats object from API:', data);
+                setStats({ pending: 0, approved: 0, rejected: 0, total: 0 });
+            } else {
+                setStats(data);
+            }
         } catch (error) {
-            console.error('Error fetching stats:', error);
+            console.error('❌ Error fetching stats:', error);
+            setStats({ pending: 0, approved: 0, rejected: 0, total: 0 });
         }
     };
 
@@ -239,7 +252,7 @@ const UserApprovalManagement: React.FC = () => {
                                 </svg>
                             </div>
                         </div>
-                        <p className="text-4xl font-bold text-yellow-800">{stats.pending}</p>
+                        <p className="text-4xl font-bold text-yellow-800">{typeof stats.pending === 'number' ? stats.pending : 0}</p>
                         <p className="text-xs text-yellow-600 mt-2">Waiting for review</p>
                     </div>
 
@@ -252,7 +265,7 @@ const UserApprovalManagement: React.FC = () => {
                                 </svg>
                             </div>
                         </div>
-                        <p className="text-4xl font-bold text-green-800">{stats.approved}</p>
+                        <p className="text-4xl font-bold text-green-800">{typeof stats.approved === 'number' ? stats.approved : 0}</p>
                         <p className="text-xs text-green-600 mt-2">Active users</p>
                     </div>
 
@@ -265,7 +278,7 @@ const UserApprovalManagement: React.FC = () => {
                                 </svg>
                             </div>
                         </div>
-                        <p className="text-4xl font-bold text-red-800">{stats.rejected}</p>
+                        <p className="text-4xl font-bold text-red-800">{typeof stats.rejected === 'number' ? stats.rejected : 0}</p>
                         <p className="text-xs text-red-600 mt-2">Denied access</p>
                     </div>
 
@@ -278,7 +291,7 @@ const UserApprovalManagement: React.FC = () => {
                                 </svg>
                             </div>
                         </div>
-                        <p className="text-4xl font-bold text-blue-800">{stats.total}</p>
+                        <p className="text-4xl font-bold text-blue-800">{typeof stats.total === 'number' ? stats.total : 0}</p>
                         <p className="text-xs text-blue-600 mt-2">All registrations</p>
                     </div>
                 </div>
