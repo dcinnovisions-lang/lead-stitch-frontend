@@ -116,8 +116,9 @@ const UserApprovalManagement: React.FC = () => {
 
         try {
             const token = localStorage.getItem('token');
+            // Send both fields for maximum compatibility
             await axios.post(`/api/user-approval/${selectedUserId}/reject`, 
-                { reason: rejectionReason },
+                { reason: rejectionReason, rejection_reason: rejectionReason },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -164,10 +165,10 @@ const UserApprovalManagement: React.FC = () => {
         setSelectedUsers(newSelected);
     };
 
-    const filteredUsers = users.filter(user =>
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const filteredUsers = Array.isArray(users) ? users.filter(user =>
+        user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    ) : [];
 
     const getInitials = (firstName: string, lastName: string) => {
         return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || '?';
