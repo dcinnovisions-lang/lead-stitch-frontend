@@ -2,7 +2,11 @@ import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'ax
 import type { Store } from '@reduxjs/toolkit'
 import type { RootState } from '../types/redux/rootState.types'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// Select API URL based on environment
+const isProduction = import.meta.env.PROD || import.meta.env.MODE === 'production';
+const API_URL = isProduction
+  ? (import.meta.env.VITE_API_URL_PROD || 'https://bk.leadstitch.nl/api')
+  : (import.meta.env.VITE_API_URL_DEV || 'http://localhost:5000/api');
 
 // Store reference will be set after store is created
 let storeRef: Store<RootState> | null = null
