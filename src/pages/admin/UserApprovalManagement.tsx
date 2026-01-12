@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../config/api';
 import AdminLayout from '../../components/AdminLayout';
 
 interface User {
@@ -75,7 +75,7 @@ const UserApprovalManagement: React.FC = () => {
                 return;
             }
             console.log('[fetchUsers] Token:', token);
-            const response = await axios.get('/api/user-approval', {
+            const response = await api.get('/user-approval', {
                 params: { status: filter, page, limit: 20 },
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -105,7 +105,7 @@ const UserApprovalManagement: React.FC = () => {
                 return;
             }
             console.log('[fetchStats] Token:', token);
-            const response = await axios.get('/api/user-approval/stats', {
+            const response = await api.get('/user-approval/stats', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             console.log('[fetchStats] Raw response:', response);
@@ -137,7 +137,7 @@ const UserApprovalManagement: React.FC = () => {
     const handleApprove = async (userId: string) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`/api/user-approval/${userId}/approve`, {}, {
+            await api.post(`/user-approval/${userId}/approve`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -160,7 +160,7 @@ const UserApprovalManagement: React.FC = () => {
         try {
             const token = localStorage.getItem('token');
             // Send both fields for maximum compatibility
-            await axios.post(`/api/user-approval/${selectedUserId}/reject`, 
+            await api.post(`/user-approval/${selectedUserId}/reject`, 
                 { reason: rejectionReason, rejection_reason: rejectionReason },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -184,7 +184,7 @@ const UserApprovalManagement: React.FC = () => {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.post('/api/user-approval/bulk/approve',
+            await api.post('/user-approval/bulk/approve',
                 { userIds: Array.from(selectedUsers) },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
