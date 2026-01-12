@@ -14,15 +14,10 @@ export const login = createAsyncThunk(
       const { rememberMe, ...loginData } = credentials
       const response = await api.post('/auth/login', loginData)
       
-      // If admin, token is returned directly - save it
+      // If admin, token is returned directly - save it (always use localStorage for admin)
       if (response.data.token && !response.data.requiresOTP) {
-        if (rememberMe) {
-          localStorage.setItem('token', response.data.token)
-          sessionStorage.removeItem('token')
-        } else {
-          sessionStorage.setItem('token', response.data.token)
-          localStorage.removeItem('token')
-        }
+        localStorage.setItem('token', response.data.token);
+        sessionStorage.removeItem('token');
       }
       
       return response.data
@@ -42,14 +37,9 @@ export const verifyLoginOTP = createAsyncThunk(
       const { rememberMe, ...otpData } = credentials
       const response = await api.post('/auth/verify-login-otp', otpData)
       
-      // Save token to localStorage if rememberMe is true, otherwise sessionStorage
-      if (rememberMe) {
-        localStorage.setItem('token', response.data.token)
-        sessionStorage.removeItem('token')
-      } else {
-        sessionStorage.setItem('token', response.data.token)
-        localStorage.removeItem('token')
-      }
+      // Always save token to localStorage for admin OTP verification
+      localStorage.setItem('token', response.data.token);
+      sessionStorage.removeItem('token');
       
       return response.data
     } catch (error) {

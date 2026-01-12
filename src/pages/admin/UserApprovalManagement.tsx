@@ -64,15 +64,30 @@ const UserApprovalManagement: React.FC = () => {
     const fetchUsers = async () => {
         setLoading(true);
         try {
+            console.log('==============================');
+            console.log('[fetchUsers] Called');
             const token = localStorage.getItem('token');
+            if (!token || token === 'null' || token === 'undefined') {
+                console.error('[fetchUsers] No valid token found in localStorage:', token);
+                setUsers([]);
+                showToast('No valid token found. Please login.', 'error');
+                setLoading(false);
+                return;
+            }
+            console.log('[fetchUsers] Token:', token);
             const response = await axios.get('/api/user-approval', {
                 params: { status: filter, page, limit: 20 },
                 headers: { Authorization: `Bearer ${token}` }
             });
-
+            console.log('[fetchUsers] Raw response:', response);
             setUsers(response.data.data);
+            console.log('[fetchUsers] Users set:', response.data.data);
+            console.log('==============================');
         } catch (error: any) {
+            console.error('❌ [fetchUsers] Error fetching users:', error);
             showToast(error.response?.data?.message || 'Failed to fetch users', 'error');
+            setUsers([]);
+            console.log('==============================');
         } finally {
             setLoading(false);
         }
@@ -80,11 +95,23 @@ const UserApprovalManagement: React.FC = () => {
 
     const fetchStats = async () => {
         try {
+            console.log('==============================');
+            console.log('[fetchStats] Called');
             const token = localStorage.getItem('token');
+            if (!token || token === 'null' || token === 'undefined') {
+                console.error('[fetchStats] No valid token found in localStorage:', token);
+                setStats({ pending: 0, approved: 0, rejected: 0, total: 0 });
+                // Optionally show a toast or redirect to login
+                return;
+            }
+            console.log('[fetchStats] Token:', token);
             const response = await axios.get('/api/user-approval/stats', {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            console.log('[fetchStats] Raw response:', response);
             const data = response.data?.data;
+            console.log('[fetchStats] Response data:', response.data);
+            console.log('[fetchStats] Stats data:', data);
             if (
                 typeof data !== 'object' ||
                 data === null ||
@@ -93,14 +120,17 @@ const UserApprovalManagement: React.FC = () => {
                 typeof data.rejected !== 'number' ||
                 typeof data.total !== 'number'
             ) {
-                console.error('❌ Malformed stats object from API:', data);
+                console.error('❌ [fetchStats] Malformed stats object from API:', data);
                 setStats({ pending: 0, approved: 0, rejected: 0, total: 0 });
             } else {
+                console.log('[fetchStats] Setting stats:', data);
                 setStats(data);
             }
+            console.log('==============================');
         } catch (error) {
-            console.error('❌ Error fetching stats:', error);
+            console.error('❌ [fetchStats] Error fetching stats:', error);
             setStats({ pending: 0, approved: 0, rejected: 0, total: 0 });
+            console.log('==============================');
         }
     };
 
