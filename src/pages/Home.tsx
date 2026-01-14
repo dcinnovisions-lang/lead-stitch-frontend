@@ -361,66 +361,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Features Section - Stagger Fade Animation */}
-      <section className="py-20 relative bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="text-center mb-16"
-          >
-            <motion.h2
-              initial={false}
-              animate={false}
-              className="text-5xl md:text-6xl font-black text-gray-900 mb-6"
-            >
-              Everything You Need to
-              <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Generate & Convert Leads
-              </span>
-            </motion.h2>
-            <motion.p
-              initial={false}
-              animate={false}
-              className="text-xl text-gray-600 max-w-3xl mx-auto"
-            >
-              Powerful features designed to streamline your B2B lead generation and email marketing workflow.
-            </motion.p>
-          </motion.div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="group relative bg-white p-8 rounded-3xl border border-gray-200 hover:border-transparent hover:shadow-2xl transition-all duration-300"
-                style={{ transformStyle: "preserve-3d" }}
-              >
-                {/* Gradient Border on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" style={{ padding: '2px' }}>
-                  <div className="bg-white h-full w-full rounded-3xl"></div>
-                </div>
-                
-                {/* Icon with bounce animation */}
-                <div className="mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
-                    {feature.icon}
-                  </div>
-                </div>
-                
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-all">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* How It Works Section - Slide In Animation */}
       <section id="how-it-works" className="py-24 relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -709,6 +649,66 @@ function Home() {
                 </motion.div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section - Stagger Fade Animation */}
+      <section className="py-20 relative bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="text-center mb-16"
+          >
+            <motion.h2
+              initial={false}
+              animate={false}
+              className="text-5xl md:text-6xl font-black text-gray-900 mb-6"
+            >
+              Everything You Need to
+              <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Generate & Convert Leads
+              </span>
+            </motion.h2>
+            <motion.p
+              initial={false}
+              animate={false}
+              className="text-xl text-gray-600 max-w-3xl mx-auto"
+            >
+              Powerful features designed to streamline your B2B lead generation and email marketing workflow.
+            </motion.p>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="group relative bg-white p-8 rounded-3xl border border-gray-200 hover:border-transparent hover:shadow-2xl transition-all duration-300"
+                style={{ transformStyle: "preserve-3d" }}
+              >
+                {/* Gradient Border on Hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" style={{ padding: '2px' }}>
+                  <div className="bg-white h-full w-full rounded-3xl"></div>
+                </div>
+                
+                {/* Icon with bounce animation */}
+                <div className="mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    {feature.icon}
+                  </div>
+                </div>
+                
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-all">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
