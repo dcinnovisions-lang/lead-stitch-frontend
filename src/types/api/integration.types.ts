@@ -29,6 +29,7 @@ export interface SMTPCredential {
   is_active?: boolean
   display_name?: string
   username?: string
+  has_oauth?: boolean // Indicates if OAuth is used (for Outlook)
 }
 
 export interface SMTPCredentialFormData {
