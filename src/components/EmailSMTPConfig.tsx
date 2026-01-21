@@ -38,6 +38,33 @@ function EmailSMTPConfig() {
 
   useEffect(() => {
     fetchCredentials()
+    
+    // Check for OAuth callback results
+    const urlParams = new URLSearchParams(window.location.search)
+    const outlookConnected = urlParams.get('outlook_connected')
+    const outlookError = urlParams.get('outlook_error')
+    const email = urlParams.get('email')
+    
+    if (outlookConnected === 'true') {
+      setModal({
+        title: 'Success!',
+        message: `Outlook account ${email ? `(${email})` : ''} connected successfully via OAuth 2.0!`,
+        type: 'success',
+        showCancel: false,
+      })
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname)
+      fetchCredentials() // Refresh credentials list
+    } else if (outlookError) {
+      setModal({
+        title: 'Outlook OAuth Error',
+        message: `Failed to connect Outlook account: ${decodeURIComponent(outlookError)}`,
+        type: 'error',
+        showCancel: false,
+      })
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
   }, [])
 
   const fetchCredentials = async () => {
@@ -689,14 +716,43 @@ function EmailSMTPConfig() {
                       </div>
                     </div>
 
+                    {/* Outlook OAuth Option (Recommended) */}
+                    <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4 mb-4">
+                      <p className="font-semibold text-green-900 mb-2">✨ Recommended: OAuth 2.0 Authentication</p>
+                      <p className="text-sm text-green-800 mb-3">
+                        OAuth 2.0 is the recommended and most reliable method for Outlook integration. It works with all Outlook/Hotmail accounts and doesn't require App Passwords.
+                      </p>
+                      <button
+                        onClick={async () => {
+                          try {
+                            const response = await api.get('/email/outlook/oauth/url');
+                            if (response.data.success) {
+                              // Open OAuth URL in new window
+                              window.location.href = response.data.authUrl;
+                            }
+                          } catch (error) {
+                            const axiosError = error as AxiosError<{ message?: string }>
+                            setModal({
+                              title: 'Error',
+                              message: axiosError.response?.data?.message || 'Failed to initiate Outlook OAuth. Please check if OAuth is configured in the backend.',
+                              type: 'error',
+                              showCancel: false,
+                            })
+                          }
+                        }}
+                        className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-600 transition-all"
+                      >
+                        Connect with Outlook OAuth 2.0
+                      </button>
+                    </div>
+
                     {/* Outlook Requirements Info */}
                     <div className="bg-red-100 border-2 border-red-300 rounded-lg p-4 mb-6">
-                      <p className="font-semibold text-red-900 mb-2">Important: Outlook SMTP Limitations:</p>
+                      <p className="font-semibold text-red-900 mb-2">Alternative: App Password Method (May Not Work):</p>
                       <ul className="list-disc list-inside space-y-1 text-sm text-red-800">
                         <li><strong>Microsoft has disabled basic authentication</strong> for SMTP on many Outlook/Hotmail accounts</li>
                         <li><strong>Even with App Passwords, SMTP may not work</strong> - this is a Microsoft account limitation</li>
-                        <li>Many accounts now require <strong>OAuth 2.0</strong> (not yet supported in this app)</li>
-                        <li><strong>Recommended:</strong> Use Gmail instead (more reliable) or a business email with custom SMTP</li>
+                        <li><strong>Recommended:</strong> Use OAuth 2.0 above (more reliable) or Gmail instead</li>
                         <li>Works with <strong>@outlook.com</strong>, <strong>@hotmail.com</strong>, <strong>@live.com</strong> (if account supports it)</li>
                       </ul>
                     </div>
