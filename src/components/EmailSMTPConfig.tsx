@@ -698,147 +698,74 @@ function EmailSMTPConfig() {
                                 )}
 
                                 {/* Outlook Configuration Form */}
-                                {selectedProviderType === 'outlook' && (() => {
-                                    // Check if user already has Outlook OAuth connected
-                                    const existingOutlookCred = credentials.find(
-                                        cred => cred.provider === 'outlook' && cred.has_oauth
-                                    );
-
-                                    return (
-                                        <div className="bg-gradient-to-br from-purple-50 via-white to-purple-50/30 border border-purple-200 rounded-xl p-6">
-                                            <div className="flex items-center gap-3 mb-6">
-                                                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center border border-purple-200">
-                                                    <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M7.5 7.5h9v9h-9v-9zM24 4v16c0 1.1-.9 2-2 2H2c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h20c1.1 0 2 .9 2 2zm-2 2H2v12h20V6z" />
-                                                        <path d="M12 12l-4-4h8l-4 4zm0 0l4 4H8l4-4z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-gray-900">Outlook Configuration</h3>
-                                                    <p className="text-sm text-gray-600">Configure your Microsoft email account</p>
-                                                </div>
+                                {selectedProviderType === 'outlook' && (
+                                    <div className="bg-gradient-to-br from-purple-50 via-white to-purple-50/30 border border-purple-200 rounded-xl p-6">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center border border-purple-200">
+                                                <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M7.5 7.5h9v9h-9v-9zM24 4v16c0 1.1-.9 2-2 2H2c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h20c1.1 0 2 .9 2 2zm-2 2H2v12h20V6z" />
+                                                    <path d="M12 12l-4-4h8l-4 4zm0 0l4 4H8l4-4z" />
+                                                </svg>
                                             </div>
-
-                                            {existingOutlookCred ? (
-                                                /* Already Connected - Show Status and Reconnect Option */
-                                                <div className="space-y-4">
-                                                    <div className="bg-emerald-50 border-2 border-emerald-300 rounded-lg p-4">
-                                                        <div className="flex items-center gap-2 mb-2">
-                                                            <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                            </svg>
-                                                            <p className="font-semibold text-emerald-900">Outlook Account Connected</p>
-                                                        </div>
-                                                        <p className="text-sm text-emerald-800 mb-3">
-                                                            Your Outlook account <strong>{existingOutlookCred.email}</strong> is connected via OAuth 2.0.
-                                                        </p>
-                                                        <div className="flex gap-3">
-                                                            <button
-                                                                onClick={async () => {
-                                                                    try {
-                                                                        const response = await api.get('/email/outlook/oauth/url');
-                                                                        if (response.data.success) {
-                                                                            // Open OAuth URL to reconnect (will update existing tokens)
-                                                                            window.location.href = response.data.authUrl;
-                                                                        }
-                                                                    } catch (error) {
-                                                                        const axiosError = error as AxiosError<{ message?: string }>
-                                                                        setModal({
-                                                                            title: 'Error',
-                                                                            message: axiosError.response?.data?.message || 'Failed to initiate Outlook OAuth. Please check if OAuth is configured in the backend.',
-                                                                            type: 'error',
-                                                                            showCancel: false,
-                                                                        })
-                                                                    }
-                                                                }}
-                                                                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-bold hover:from-blue-700 hover:to-blue-600 transition-all"
-                                                            >
-                                                                Reconnect Outlook Account
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setShowForm(false)
-                                                                    setSelectedProviderType(null)
-                                                                    setFormData({
-                                                                        provider: '',
-                                                                        email: '',
-                                                                        smtp_host: '',
-                                                                        smtp_port: 587,
-                                                                        smtp_secure: false,
-                                                                        username: '',
-                                                                        password: '',
-                                                                        display_name: '',
-                                                                    })
-                                                                    setErrors({})
-                                                                }}
-                                                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                                        <p className="text-xs text-blue-800">
-                                                            <strong>Note:</strong> Reconnecting will update your OAuth tokens. This is useful if you're experiencing issues or want to refresh your connection.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                /* Not Connected - Show Connect Option */
-                                                <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4 mb-6">
-                                                    <p className="font-semibold text-green-900 mb-2">OAuth 2.0 Authentication</p>
-                                                    <p className="text-sm text-green-800 mb-4">
-                                                        Connect your Outlook account securely using OAuth 2.0. This is the recommended and most reliable method for Outlook integration.
-                                                    </p>
-                                                    <div className="flex gap-3">
-                                                        <button
-                                                            onClick={async () => {
-                                                                try {
-                                                                    const response = await api.get('/email/outlook/oauth/url');
-                                                                    if (response.data.success) {
-                                                                        // Open OAuth URL in new window
-                                                                        window.location.href = response.data.authUrl;
-                                                                    }
-                                                                } catch (error) {
-                                                                    const axiosError = error as AxiosError<{ message?: string }>
-                                                                    setModal({
-                                                                        title: 'Error',
-                                                                        message: axiosError.response?.data?.message || 'Failed to initiate Outlook OAuth. Please check if OAuth is configured in the backend.',
-                                                                        type: 'error',
-                                                                        showCancel: false,
-                                                                    })
-                                                                }
-                                                            }}
-                                                            className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-600 transition-all"
-                                                        >
-                                                            Connect with Outlook OAuth 2.0
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                setShowForm(false)
-                                                                setSelectedProviderType(null)
-                                                                setFormData({
-                                                                    provider: '',
-                                                                    email: '',
-                                                                    smtp_host: '',
-                                                                    smtp_port: 587,
-                                                                    smtp_secure: false,
-                                                                    username: '',
-                                                                    password: '',
-                                                                    display_name: '',
-                                                                })
-                                                                setErrors({})
-                                                            }}
-                                                            className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
+                                            <div>
+                                                <h3 className="text-xl font-bold text-gray-900">Outlook Configuration</h3>
+                                                <p className="text-sm text-gray-600">Configure your Microsoft email account</p>
+                                            </div>
                                         </div>
-                                    );
-                                })()}
+
+                                        {/* Outlook OAuth Option */}
+                                        <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4 mb-6">
+                                            <p className="font-semibold text-green-900 mb-2">OAuth 2.0 Authentication</p>
+                                            <p className="text-sm text-green-800 mb-4">
+                                                Connect your Outlook account securely using OAuth 2.0. This is the recommended and most reliable method for Outlook integration.
+                                            </p>
+                                            <div className="flex gap-3">
+                                                <button
+                                                    onClick={async () => {
+                                                        try {
+                                                            const response = await api.get('/email/outlook/oauth/url');
+                                                            if (response.data.success) {
+                                                                // Open OAuth URL - will create new account or update existing tokens if same account
+                                                                window.location.href = response.data.authUrl;
+                                                            }
+                                                        } catch (error) {
+                                                            const axiosError = error as AxiosError<{ message?: string }>
+                                                            setModal({
+                                                                title: 'Error',
+                                                                message: axiosError.response?.data?.message || 'Failed to initiate Outlook OAuth. Please check if OAuth is configured in the backend.',
+                                                                type: 'error',
+                                                                showCancel: false,
+                                                            })
+                                                        }
+                                                    }}
+                                                    className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg font-bold hover:from-green-700 hover:to-green-600 transition-all"
+                                                >
+                                                    Connect with Outlook OAuth 2.0
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowForm(false)
+                                                        setSelectedProviderType(null)
+                                                        setFormData({
+                                                            provider: '',
+                                                            email: '',
+                                                            smtp_host: '',
+                                                            smtp_port: 587,
+                                                            smtp_secure: false,
+                                                            username: '',
+                                                            password: '',
+                                                            display_name: '',
+                                                        })
+                                                        setErrors({})
+                                                    }}
+                                                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Yahoo Configuration Form */}
                                 {selectedProviderType === 'yahoo' && (
