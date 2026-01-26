@@ -13,6 +13,7 @@ interface ModalProps {
   cancelText?: string
   showCancel?: boolean
   showPasswordInput?: boolean
+  hideIcon?: boolean
 }
 
 function Modal({ 
@@ -26,7 +27,8 @@ function Modal({
   confirmText = 'OK', 
   cancelText = 'Cancel', 
   showCancel = false, 
-  showPasswordInput = false 
+  showPasswordInput = false,
+  hideIcon = false
 }: ModalProps) {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -143,7 +145,7 @@ function Modal({
         </div>
 
         <div className="px-6 py-6">
-          {getIcon()}
+          {!hideIcon && getIcon()}
           <div className="text-gray-700 text-base leading-relaxed mb-6">
             {typeof message === 'string' ? (
               <p className="text-center">{message}</p>

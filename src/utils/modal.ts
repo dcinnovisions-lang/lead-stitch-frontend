@@ -19,6 +19,7 @@ interface ModalConfig {
   cancelText?: string
   showCancel?: boolean
   showPasswordInput?: boolean
+  hideIcon?: boolean
 }
 
 // This will be set by the ModalProvider
@@ -34,14 +35,14 @@ export const showModal = (config: ModalConfig) => {
   } else {
     // Fallback to browser alert if modal provider not available
     if (config.showCancel) {
-      const result = window.confirm(config.message)
+      const result = window.confirm(config.message as string)
       if (result && config.onConfirm) {
         config.onConfirm()
       } else if (!result && config.onCancel) {
         config.onCancel()
       }
     } else {
-      window.alert(config.message)
+      window.alert(config.message as string)
       if (config.onConfirm) {
         config.onConfirm()
       }

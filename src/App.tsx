@@ -4,6 +4,7 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import GlobalErrorToast from './components/GlobalErrorToast'
 import GlobalLoading from './components/GlobalLoading'
+import ModalProvider from './components/ModalProvider'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -102,10 +103,11 @@ function App() {
   }, [isAuthenticated, user, navigate, location.pathname])
 
   return (
-    <div className="App">
-      <GlobalLoading />
-      <GlobalErrorToast />
-      <Routes>
+    <ModalProvider>
+      <div className="App">
+        <GlobalLoading />
+        <GlobalErrorToast />
+        <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -418,7 +420,8 @@ function App() {
           }
         />
       </Routes>
-    </div>
+      </div>
+    </ModalProvider>
   )
 }
 

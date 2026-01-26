@@ -29,6 +29,8 @@ export interface DecisionMaker {
   id: number
   requirementId?: number
   requirement_id?: number
+  suggestionId?: string
+  suggestion_id?: string
   roleTitle?: string
   role_title?: string
   priority?: 'high' | 'medium' | 'low' | number
@@ -43,6 +45,11 @@ export interface DecisionMaker {
   confidence?: number
   api_source?: string
   apiSource?: string
+  suggestion?: {
+    id: string
+    suggestion_text: string
+    created_at?: string
+  }
 }
 
 export interface CreateRequirementData {
