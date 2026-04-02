@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import AOS from 'aos'
 import { motion } from 'framer-motion'
 import AnimatedNumber from '../components/AnimatedNumber'
+import MarketingNavbar from '../components/MarketingNavbar'
 import { useAppSelector } from '../store/hooks'
 import { RootState } from '../types/redux/rootState.types'
 
@@ -269,51 +270,10 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 sm:h-20">
-            <div className="flex items-center">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex-shrink-0"
-              >
-                <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                  Lead Stitch
-                </h1>
-              </motion.div>
-            </div>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="flex items-center space-x-2 sm:space-x-6"
-            >
-              <Link
-                to="/login"
-                className="text-gray-700 hover:text-blue-600 px-2 sm:px-4 py-1 sm:py-2 text-sm font-semibold transition-all"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/register"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 sm:px-8 py-1.5 sm:py-3 rounded-full text-sm font-bold hover:shadow-lg hover:scale-105 transition-all duration-300"
-              >
-                Get Started Free
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </motion.nav>
+      <MarketingNavbar />
 
       {/* Hero Section - Modern SaaS Style */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-100 via-purple-100 to-white pt-24 pb-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-100 via-purple-100 to-white pt-16 pb-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           {/* Trust Badge */}
           <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-200 mb-6">
@@ -325,11 +285,11 @@ function Home() {
           </div>
           {/* Headline */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-gray-900 mb-6 leading-tight">
-            Supercharge Your <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Lead Generation</span>
+            AI-Powered <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">B2B Lead Generation</span> from Research to Outreach
           </h1>
           {/* Subheadline */}
           <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-            Instantly find, verify, and connect with decision-makers. AI-powered, automated, and built for modern B2B teams.
+            Tell us your target market, and Lead Stitch identifies decision-makers, enriches verified emails, and helps your team launch campaigns quickly.
           </p>
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -340,29 +300,29 @@ function Home() {
               Start Free Trial
             </Link>
             <Link
-              to="/login"
+              to="/register?intent=demo"
               className="bg-white text-gray-900 px-6 sm:px-10 py-3 sm:py-5 rounded-full text-base sm:text-lg font-bold border-2 border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300 text-center"
             >
-              Sign In
+              Talk to Sales
             </Link>
           </div>
           {/* Trust Bar */}
           <div className="flex flex-wrap justify-center gap-6 mt-8 opacity-80">
-            <span className="text-gray-500 text-sm flex items-center gap-2"><svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>No credit card required</span>
-            <span className="text-gray-500 text-sm flex items-center gap-2"><svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>14-day free trial</span>
-            <span className="text-gray-500 text-sm flex items-center gap-2"><svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Cancel anytime</span>
+            <span className="text-gray-500 text-sm flex items-center gap-2"><svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Built for B2B founders and sales teams</span>
+            <span className="text-gray-500 text-sm flex items-center gap-2"><svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Decision-maker targeting and verified emails</span>
+            <span className="text-gray-500 text-sm flex items-center gap-2"><svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Book a guided sales demo</span>
           </div>
         </div>
         {/* Decorative Wave Divider */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#eff6ff"/>
           </svg>
         </div>
       </section>
 
-      {/* How It Works Section - Slide In Animation */}
-      <section id="how-it-works" className="py-24 relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+            {/* How It Works Section - Timeline Style */}
+      <section id="how-it-works" className="pt-10 pb-24 relative bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -380,7 +340,7 @@ function Home() {
             >
               From Requirement to
               <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Revenue in 5 Steps
+                Campaign Launch in 5 Steps
               </span>
             </motion.h2>
             <motion.p
@@ -390,196 +350,20 @@ function Home() {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="text-xl text-gray-600 max-w-3xl mx-auto"
             >
-              Our AI-powered platform automates your entire lead generation workflow
+              A crystal-clear process your team can understand at first glance.
             </motion.p>
           </motion.div>
-          
-          {/* Desktop: Single Card Layout with Content Left & Image Right */}
-          <div className="hidden lg:block space-y-12">
-            {steps.map((step, index) => {
-              // Alternate background color and layout
-              const bgColors = [
-                "bg-blue-50",
-                "bg-purple-50",
-                "bg-gray-50",
-                "bg-blue-100",
-                "bg-purple-100"
-              ];
-              const numberColors = [
-                "from-blue-400 to-blue-600",
-                "from-purple-400 to-purple-600",
-                "from-pink-400 to-pink-600",
-                "from-blue-400 to-purple-600",
-                "from-purple-400 to-pink-600"
-              ];
-              const isEven = index % 2 === 1;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                  transition={{ 
-                    duration: 0.8,
-                    delay: 0.2,
-                    type: "spring",
-                    stiffness: 60
-                  }}
-                  className="overflow-hidden mb-12"
-                >
-                  <motion.div
-                    whileHover={{ 
-                      y: -10,
-                      boxShadow: "0 30px 60px rgba(0,0,0,0.15)"
-                    }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className={`${bgColors[index % bgColors.length]} rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200/50`}
-                  >
-                    <div className={`grid grid-cols-2 gap-8`}>
-                      {isEven ? (
-                        <>
-                          {/* Image/Visual Side */}
-                          <motion.div
-                            initial={{ x: -100, opacity: 0 }}
-                            whileInView={{ x: 0, opacity: 1 }}
-                            viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                            transition={{ duration: 0.6, delay: 0.4 }}
-                            className="relative h-96 overflow-hidden rounded-2xl"
-                          >
-                            <img
-                              src={step.image}
-                              alt={step.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <motion.div
-                              initial={{ opacity: 0 }}
-                              whileInView={{ opacity: 1 }}
-                              viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                              transition={{ duration: 0.8, delay: 0.5 }}
-                              className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
-                            />
-                          </motion.div>
-                          {/* Content Side */}
-                          <motion.div
-                            initial={{ x: 100, opacity: 0 }}
-                            whileInView={{ x: 0, opacity: 1 }}
-                            viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                            transition={{ duration: 0.6, delay: 0.3 }}
-                            className="p-10 flex flex-col justify-center"
-                          >
-                            {/* Step Number */}
-                            <div className={`mb-4 flex items-center`}>
-                              <span className={`inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br ${numberColors[index % numberColors.length]} text-white text-3xl font-black shadow-lg mr-4`}>{index + 1}</span>
-                              <h3 className="text-3xl font-black text-gray-900 leading-tight">
-                                {step.title}
-                              </h3>
-                            </div>
-                            <motion.span
-                              initial={{ scale: 0 }}
-                              whileInView={{ scale: 1 }}
-                              viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                              transition={{ duration: 0.4, delay: 0.5 }}
-                              className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 text-sm font-bold px-4 py-2 rounded-full w-fit mb-6"
-                            >
-                              {step.timeEstimate}
-                            </motion.span>
-                            <p className="text-gray-600 leading-relaxed mb-6 text-lg">
-                              {step.description}
-                            </p>
-                            <motion.div
-                              initial={{ y: 20, opacity: 0 }}
-                              whileInView={{ y: 0, opacity: 1 }}
-                              viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                              transition={{ duration: 0.5, delay: 0.6 }}
-                              className="p-5 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200"
-                            >
-                              <p className="text-purple-900 font-medium leading-relaxed">
-                                <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Example:</span> {step.example}
-                              </p>
-                            </motion.div>
-                          </motion.div>
-                        </>
-                      ) : (
-                        <>
-                          {/* Content Side */}
-                          <motion.div
-                            initial={{ x: -100, opacity: 0 }}
-                            whileInView={{ x: 0, opacity: 1 }}
-                            viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                            transition={{ duration: 0.6, delay: 0.3 }}
-                            className="p-10 flex flex-col justify-center"
-                          >
-                            {/* Step Number */}
-                            <div className={`mb-4 flex items-center`}>
-                              <span className={`inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br ${numberColors[index % numberColors.length]} text-white text-3xl font-black shadow-lg mr-4`}>{index + 1}</span>
-                              <h3 className="text-3xl font-black text-gray-900 leading-tight">
-                                {step.title}
-                              </h3>
-                            </div>
-                            <motion.span
-                              initial={{ scale: 0 }}
-                              whileInView={{ scale: 1 }}
-                              viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                              transition={{ duration: 0.4, delay: 0.5 }}
-                              className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 text-sm font-bold px-4 py-2 rounded-full w-fit mb-6"
-                            >
-                              {step.timeEstimate}
-                            </motion.span>
-                            <p className="text-gray-600 leading-relaxed mb-6 text-lg">
-                              {step.description}
-                            </p>
-                            <motion.div
-                              initial={{ y: 20, opacity: 0 }}
-                              whileInView={{ y: 0, opacity: 1 }}
-                              viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                              transition={{ duration: 0.5, delay: 0.6 }}
-                              className="p-5 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200"
-                            >
-                              <p className="text-purple-900 font-medium leading-relaxed">
-                                <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Example:</span> {step.example}
-                              </p>
-                            </motion.div>
-                          </motion.div>
-                          {/* Image/Visual Side */}
-                          <motion.div
-                            initial={{ x: 100, opacity: 0 }}
-                            whileInView={{ x: 0, opacity: 1 }}
-                            viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                            transition={{ duration: 0.6, delay: 0.4 }}
-                            className="relative h-96 overflow-hidden rounded-2xl"
-                          >
-                            <img
-                              src={step.image}
-                              alt={step.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <motion.div
-                              initial={{ opacity: 0 }}
-                              whileInView={{ opacity: 1 }}
-                              viewport={{ once: true, margin: "0px 0px -200px 0px" }}
-                              transition={{ duration: 0.8, delay: 0.5 }}
-                              className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
-                            />
-                          </motion.div>
-                        </>
-                      )}
-                    </div>
-                  </motion.div>
-                </motion.div>
-              );
-            })}
-          </div>
 
-          {/* Mobile/Tablet View - Stacked Layout */}
-          <div className="lg:hidden space-y-8">
+          <div className="max-w-5xl mx-auto space-y-8">
             {steps.map((step, index) => {
-              const bgColors = [
-                "bg-blue-50",
-                "bg-purple-50",
-                "bg-gray-50",
-                "bg-blue-50",
-                "bg-purple-50"
-              ];
+              const bgColors = ["bg-blue-50", "bg-purple-50", "bg-gray-50", "bg-blue-50", "bg-purple-50"]
+              const numberColors = [
+                "from-blue-500 to-blue-700",
+                "from-purple-500 to-purple-700",
+                "from-pink-500 to-pink-700",
+                "from-blue-500 to-purple-700",
+                "from-purple-500 to-pink-700",
+              ]
               return (
                 <motion.div
                   key={index}
@@ -589,72 +373,41 @@ function Home() {
                   transition={{ duration: 0.6, delay: 0.1 }}
                   className="overflow-hidden mb-8"
                 >
-                  <motion.div
-                    whileHover={{ y: -8 }}
-                    className={`${bgColors[index % bgColors.length]} rounded-3xl shadow-lg border border-gray-200/50`}
-                  >
-                    {/* Mobile Header with Icon and Number */}
-                    <motion.div
-                      initial={{ y: -50, opacity: 0 }}
-                      whileInView={{ y: 0, opacity: 1 }}
-                      viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-                      transition={{ duration: 0.5, delay: 0.1 }}
-                      className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-8 h-8 text-white">
-                          {step.icon}
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-black text-white">
-                            {step.title}
-                          </h3>
-                          <span className="text-white/80 text-sm font-semibold">
-                            {step.timeEstimate}
-                          </span>
+                  <motion.div whileHover={{ y: -8 }} className={`${bgColors[index % bgColors.length]} rounded-3xl shadow-lg border border-gray-200/50`}>
+                    <div className="bg-white p-6 sm:p-8 rounded-3xl">
+                      <div className="flex items-start gap-5">
+                        <span
+                          className={`inline-flex items-center justify-center min-w-14 h-14 rounded-full bg-gradient-to-br ${numberColors[index % numberColors.length]} text-white text-2xl font-black shadow-lg`}
+                        >
+                          {step.number}
+                        </span>
+                        <div className="flex-1">
+                          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                            <h3 className="text-2xl font-black text-gray-900">{step.title}</h3>
+                            <span className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 text-xs sm:text-sm font-bold px-4 py-2 rounded-full">
+                              {step.timeEstimate}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 leading-relaxed mb-4">{step.description}</p>
+                          <div className="p-4 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200">
+                            <p className="text-sm sm:text-base text-purple-900 font-medium leading-relaxed">
+                              <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Example:</span>{' '}
+                              {step.example}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                      <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
-                        <span className="text-white font-black">{step.number}</span>
-                      </div>
-                    </motion.div>
-
-                    {/* Mobile Content */}
-                    <div className="p-6">
-                      <p className="text-gray-700 leading-relaxed mb-4">
-                        {step.description}
-                      </p>
-
-                      {/* Mobile Example */}
-                      <motion.div
-                        initial={{ y: 15, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-                        transition={{ duration: 0.4, delay: 0.2 }}
-                        className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border-2 border-purple-200 mb-4"
-                      >
-                        <p className="text-sm text-purple-900 font-medium">
-                          <span className="font-black text-purple-600">Ex:</span> {step.example}
-                        </p>
-                      </motion.div>
-
-                      {/* Mobile Visual */}
-                      <img
-                        src={step.image}
-                        alt={step.title}
-                        className="w-full h-56 object-cover rounded-b-2xl"
-                      />
                     </div>
                   </motion.div>
                 </motion.div>
-              );
+              )
             })}
           </div>
         </div>
       </section>
 
       {/* Features Section - Stagger Fade Animation */}
-      <section className="py-20 relative bg-white">
+      <section id="features" className="py-20 relative bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -763,7 +516,7 @@ function Home() {
 
 
       {/* Accordion Slide Animation */}
-      <section className="py-20 relative bg-gradient-to-b from-gray-50 to-white">
+      <section id="faq" className="py-20 relative bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -917,10 +670,10 @@ function Home() {
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link
-                  to="/login"
+                  to="/register?intent=demo"
                   className="inline-block bg-transparent border-3 border-gray-300 text-gray-700 px-12 py-5 rounded-full text-xl font-bold hover:bg-gray-100 transition-all"
                 >
-                  Sign In
+                  Book Demo
                 </Link>
               </motion.div>
             </div>
@@ -938,7 +691,7 @@ function Home() {
         </div>
       </section>
 
-      {/* Footer */}
+            {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
@@ -947,64 +700,69 @@ function Home() {
                 Lead Stitch
               </h3>
               <p className="text-gray-400 leading-relaxed mb-6 max-w-md">
-                AI-powered B2B lead generation and email marketing platform. 
+                AI-powered B2B lead generation and email marketing platform.
                 Transform your sales pipeline with intelligent automation.
               </p>
               <div className="flex gap-4">
-                {[
-                  { name: 'Twitter', icon: '𝕏' },
-                  { name: 'LinkedIn', icon: 'in' },
-                  { name: 'Facebook', icon: 'f' },
-                  { name: 'Instagram', icon: '📷' }
-                ].map((social, index) => (
-                  <motion.a
-                    key={index}
-                    href="#"
-                    whileHover={{ scale: 1.2, rotate: 5 }}
-                    className="w-10 h-10 bg-gray-800 hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-full flex items-center justify-center text-white font-bold transition-all"
-                  >
-                    {social.icon}
-                  </motion.a>
-                ))}
+                <Link
+                  to="/register?intent=demo"
+                  className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:shadow-lg transition-all"
+                >
+                  Book a Demo
+                </Link>
               </div>
             </div>
-            
+
             <div>
               <h4 className="text-white font-bold mb-4 text-lg">Product</h4>
               <ul className="space-y-3">
-                {['Features', 'Pricing', 'Integrations', 'API Docs'].map((item, index) => (
-                  <li key={index}>
-                    <a href="#" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
-                      {item}
-                    </a>
-                  </li>
-                ))}
+                <li>
+                  <a href="#features" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a href="#how-it-works" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    How It Works
+                  </a>
+                </li>
+                <li>
+                  <Link to="/register?intent=demo" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    Book Demo
+                  </Link>
+                </li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="text-white font-bold mb-4 text-lg">Company</h4>
               <ul className="space-y-3">
-                {['About', 'Blog', 'Careers', 'Contact'].map((item, index) => (
-                  <li key={index}>
-                    <a href="#" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
-                      {item}
-                    </a>
-                  </li>
-                ))}
+                <li>
+                  <a href="#faq" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    FAQ
+                  </a>
+                </li>
+                <li>
+                  <Link to="/login" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    Sign In
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/register" className="hover:text-white transition-colors hover:translate-x-1 inline-block">
+                    Start Free Trial
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 pt-8 mt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-gray-400">
-                &copy; 2024 Lead Stitch. All rights reserved.
-              </p>
+              <p className="text-gray-400">&copy; 2024 Lead Stitch. All rights reserved.</p>
               <div className="flex gap-6 text-sm">
-                <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-                <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+                <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+                <Link to="/cookies" className="hover:text-white transition-colors">Cookie Policy</Link>
               </div>
             </div>
           </div>
@@ -1016,3 +774,5 @@ function Home() {
 }
 
 export default Home
+
+

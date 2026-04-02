@@ -30,6 +30,9 @@ import Tickets from './pages/Tickets'
 import CreateTicket from './pages/CreateTicket'
 import TicketDetail from './pages/TicketDetail'
 import Settings from './pages/Settings'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
+import CookiePolicy from './pages/CookiePolicy'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminSystem from './pages/admin/AdminSystem'
@@ -95,6 +98,11 @@ function App() {
     }
   }, [token, user, dispatch])
 
+  // Ensure route navigation starts at top of page
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
+
   // Redirect admins from regular dashboard to admin dashboard
   useEffect(() => {
     if (isAuthenticated && user && user.role === 'admin' && location.pathname === '/dashboard') {
@@ -115,6 +123,9 @@ function App() {
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/pending-approval" element={<PendingApproval />} />
         <Route path="/account-rejected" element={<AccountRejected />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/cookies" element={<CookiePolicy />} />
         <Route
           path="/dashboard"
           element={
